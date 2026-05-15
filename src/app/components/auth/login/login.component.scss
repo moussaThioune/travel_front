@@ -1,0 +1,68 @@
+.auth-page { min-height: 100vh; background: var(--cream); }
+.auth-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; @media (max-width: 768px) { grid-template-columns: 1fr; } }
+
+.auth-visual {
+  position: relative; overflow: hidden;
+  @media (max-width: 768px) { display: none; }
+  img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .av-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(10,40,40,0.88), rgba(15,69,69,0.72)); z-index: 1; }
+  .av-content { position: relative; z-index: 2; padding: 120px 60px; color: white;
+    h2 { font-size: 40px; font-weight: 900; color: white; letter-spacing: -1.5px; margin-bottom: 16px; em { color: var(--gold); font-style: italic; } }
+    p { font-size: 16px; color: rgba(255,255,255,0.72); line-height: 1.7; max-width: 380px; margin-bottom: 48px; }
+  }
+  .av-stats { display: flex; gap: 40px;
+    div strong { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; color: var(--gold); display: block; line-height: 1; }
+    div span { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; display: block; }
+  }
+}
+
+.auth-form-wrap { display: flex; align-items: center; justify-content: center; padding: 60px 40px; background: white; @media (max-width: 768px) { padding: 40px 24px; } }
+.auth-form-inner { width: 100%; max-width: 420px; }
+
+.auth-logo {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--ink);
+  margin-bottom: 36px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  em { color: var(--gold); font-style: normal; }
+}
+
+h1 { font-size: 34px; font-weight: 900; color: var(--ink); letter-spacing: -1px; margin-bottom: 6px; }
+.auth-subtitle { font-size: 15px; color: var(--gray); margin-bottom: 0; }
+
+// Demo cards
+.demo-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
+.demo-card {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px;
+  border: 1.5px solid var(--sand); cursor: pointer; transition: var(--transition); background: var(--cream);
+  &:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  &.demo-admin { border-color: rgba(26,107,107,0.3); background: rgba(26,107,107,0.05);
+    &:hover { border-color: var(--teal); background: rgba(26,107,107,0.08); }
+  }
+  &.demo-client { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.05);
+    &:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+  }
+  .dc-icon { font-size: 22px; flex-shrink: 0; }
+  .dc-label { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .dc-creds { font-size: 10px; color: var(--gray); margin-top: 2px; font-family: monospace; }
+  .dc-arrow { margin-left: auto; font-size: 14px; color: var(--gray); }
+}
+
+.input-icon-wrap { position: relative; display: flex; align-items: center;
+  > i { position: absolute; left: 14px; color: var(--teal); font-size: 14px; z-index: 1; pointer-events: none; }
+  .form-control { padding-left: 42px !important; width: 100%; }
+  .toggle-pwd { position: absolute; right: 14px; background: none; border: none; color: var(--gray); cursor: pointer; padding: 0; font-size: 16px; &:hover { color: var(--teal); } }
+}
+
+.forgot-link { font-size: 12px; color: var(--teal); font-weight: 500; text-decoration: none; float: right; &:hover { text-decoration: underline; } }
+
+.auth-error { background: rgba(232,98,74,0.08); border: 1px solid rgba(232,98,74,0.25); color: var(--coral); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-bottom: 16px; display: flex; gap: 8px; align-items: center; }
+
+.auth-divider { text-align: center; margin: 20px 0; position: relative;
+  &::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--sand); }
+  span { background: white; padding: 0 14px; font-size: 13px; color: var(--gray); position: relative; }
+}
+
+.auth-switch { text-align: center; font-size: 14px; color: var(--gray);
+  a { color: var(--teal); font-weight: 600; text-decoration: none; margin-left: 4px; &:hover { text-decoration: underline; } }
+}
+
+.form-label { display: flex; justify-content: space-between; align-items: center; }

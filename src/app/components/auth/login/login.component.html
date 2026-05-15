@@ -1,0 +1,94 @@
+<app-navbar></app-navbar>
+
+<div class="auth-page">
+  <div class="auth-split">
+
+    <!-- Visual -->
+    <div class="auth-visual">
+      <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&q=85" alt="voyage">
+      <div class="av-overlay"></div>
+      <div class="av-content">
+        <h2>Retrouvez votre prochaine<br><em>aventure</em></h2>
+        <p>Connectez-vous pour accéder à vos réservations et suivre vos voyages en temps réel.</p>
+        <div class="av-stats">
+          <div><strong>12K+</strong><span>Voyageurs</span></div>
+          <div><strong>85</strong><span>Destinations</span></div>
+          <div><strong>4.9★</strong><span>Satisfaction</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="auth-form-wrap">
+      <div class="auth-form-inner">
+
+        <div class="auth-logo" routerLink="/">✈️ <span>Voyag<em>eur</em></span></div>
+        <h1>Bon retour!</h1>
+        <p class="auth-subtitle">Connectez-vous à votre compte pour continuer.</p>
+
+        <!-- Comptes démo -->
+        <div class="demo-cards">
+          <div class="demo-card demo-admin" (click)="fillDemo('admin')">
+            <div class="dc-icon">⚙️</div>
+            <div>
+              <div class="dc-label">Compte Admin</div>
+              <div class="dc-creds">admin&#64;voyageur.fr · admin123</div>
+            </div>
+            <div class="dc-arrow">→</div>
+          </div>
+          <div class="demo-card demo-client" (click)="fillDemo('client')">
+            <div class="dc-icon">👤</div>
+            <div>
+              <div class="dc-label">Compte Client</div>
+              <div class="dc-creds">demo&#64;voyageur.fr · demo123</div>
+            </div>
+            <div class="dc-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="form-voyageur" style="margin-top:24px">
+          <div class="form-group">
+            <label class="form-label">Adresse email</label>
+            <div class="input-icon-wrap">
+              <i class="bi bi-envelope-fill"></i>
+              <input type="email" class="form-control" [(ngModel)]="email"
+                     placeholder="votre&#64;email.com" (keydown.enter)="doLogin()">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              Mot de passe
+              <a href="#" class="forgot-link" (click)="$event.preventDefault()">Oublié?</a>
+            </label>
+            <div class="input-icon-wrap">
+              <i class="bi bi-lock-fill"></i>
+              <input [type]="showPwd ? 'text' : 'password'" class="form-control"
+                     [(ngModel)]="password" placeholder="••••••••" (keydown.enter)="doLogin()">
+              <button class="toggle-pwd" type="button" (click)="showPwd = !showPwd">
+                <i [class]="showPwd ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-error" *ngIf="errorMsg">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMsg }}
+        </div>
+
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-lg"
+                (click)="doLogin()" [disabled]="loading">
+          <span *ngIf="!loading">Se connecter <i class="bi bi-arrow-right ms-1"></i></span>
+          <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Connexion…</span>
+        </button>
+
+        <div class="auth-divider"><span>ou</span></div>
+        <div class="auth-switch">
+          Pas encore de compte?
+          <a routerLink="/inscription">Créer un compte gratuitement</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

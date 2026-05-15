@@ -1,0 +1,608 @@
+<div class="assures-page">
+
+  <!-- ====== HEADER ====== -->
+  <div class="ap-header">
+    <div class="ap-header-left">
+      <h1 class="ap-title">🚗 Suivi des Assurés</h1>
+      <p class="ap-subtitle">Gestion des contrats et rappels d'échéance</p>
+    </div>
+    <div class="ap-header-right">
+      <button class="btn-a btn-a-outline" (click)="lancerRappels()" title="Envoyer rappels maintenant">
+        <i class="bi bi-bell-fill me-1"></i> Lancer rappels
+      </button>
+      <button class="btn-a btn-a-excel" (click)="showImportModal=true" title="Importer depuis Excel">
+        <i class="bi bi-file-earmark-excel me-1"></i> Import Excel
+      </button>
+      <button class="btn-a btn-a-teal" (click)="openCreate()">
+        <i class="bi bi-plus-lg me-1"></i> Nouvel assuré
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== KPI CARDS ====== -->
+  <div class="kpi-grid" *ngIf="stats">
+    <div class="kpi-card kpi-total">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-val">{{ stats.total }}</div>
+      <div class="kpi-lbl">Total assurés</div>
+    </div>
+    <div class="kpi-card kpi-actif">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-val">{{ stats.actifs }}</div>
+      <div class="kpi-lbl">Actifs</div>
+    </div>
+    <div class="kpi-card kpi-proche" (click)="activeTab='echeances'" style="cursor:pointer">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-val">{{ stats.echeancesProches }}</div>
+      <div class="kpi-lbl">Échéances &lt;30j</div>
+    </div>
+    <div class="kpi-card kpi-expire" (click)="activeTab='expires'" style="cursor:pointer">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-val">{{ stats.expires }}</div>
+      <div class="kpi-lbl">Expirés</div>
+    </div>
+    <div class="kpi-card kpi-vendu">
+      <div class="kpi-icon">🏷️</div>
+      <div class="kpi-val">{{ stats.vendus }}</div>
+      <div class="kpi-lbl">Vendus</div>
+    </div>
+  </div>
+
+  <!-- ====== TABS ====== -->
+  <div class="ap-tabs">
+    <button class="ap-tab" [class.active]="activeTab==='liste'" (click)="activeTab='liste'">
+      <i class="bi bi-list-ul me-1"></i> Liste
+    </button>
+    <button class="ap-tab" [class.active]="activeTab==='echeances'" (click)="activeTab='echeances'">
+      <i class="bi bi-calendar-warning me-1"></i> Échéances proches
+      <span class="ap-badge" *ngIf="echeances.length">{{ echeances.length }}</span>
+    </button>
+    <button class="ap-tab" [class.active]="activeTab==='expires'" (click)="activeTab='expires'">
+      <i class="bi bi-exclamation-triangle me-1"></i> Expirés
+      <span class="ap-badge rouge" *ngIf="expires.length">{{ expires.length }}</span>
+    </button>
+    <button class="ap-tab" [class.active]="activeTab==='stats'" (click)="activeTab='stats'">
+      <i class="bi bi-bar-chart me-1"></i> Statistiques
+    </button>
+  </div>
+
+  <!-- ====== LISTE ====== -->
+  <div *ngIf="activeTab==='liste'">
+    <div class="ap-toolbar">
+      <div class="ap-search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Nom, immatricule, tél, marque…"
+               [(ngModel)]="searchQuery" (input)="onSearch()">
+      </div>
+      <select class="ap-filter-sel" [(ngModel)]="filterStatut" (change)="onFilterChange()">
+        <option value="">Tous les statuts</option>
+        <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+      </select>
+      <select class="ap-filter-sel" [(ngModel)]="pageSize" (change)="currentPage=1">
+        <option [ngValue]="10">10 / page</option>
+        <option [ngValue]="20">20 / page</option>
+        <option [ngValue]="50">50 / page</option>
+      </select>
+      <span class="ap-count">{{ filteredAssures.length }} résultat(s)</span>
+    </div>
+
+    <div class="assures-table-wrap" *ngIf="!loading">
+      <table class="assures-table">
+        <thead>
+          <tr>
+            <th>Assuré</th>
+            <th>Véhicule</th>
+            <th>Immatricule</th>
+            <th>Téléphone</th>
+            <th>Échéance</th>
+            <th>Délai</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of paginatedAssures; trackBy: trackById"
+              [class.row-expire]="a.expire" [class.row-proche]="a.echeanceProche && !a.expire">
+            <td>
+              <div class="cell-name">
+                <span class="name-main">{{ a.nomComplet }}</span>
+                <span class="name-sub" *ngIf="a.numeroPolicce">{{ a.numeroPolicce }}</span>
+              </div>
+            </td>
+            <td><span class="cell-marque">{{ a.marque || '—' }}</span></td>
+            <td><code class="cell-immat">{{ a.immatricule || '—' }}</code></td>
+            <td>
+              <a [href]="'tel:'+a.telephone" class="cell-tel">{{ a.telephone }}</a>
+            </td>
+            <td>
+              <span class="cell-date">{{ formatDate(a.echeance) }}</span>
+            </td>
+            <td>
+              <span class="jours-badge" [class]="joursClass(a)">{{ joursLabel(a) }}</span>
+            </td>
+            <td>
+              <span class="statut-badge" [class]="statutClass(a.statut)">{{ a.statut }}</span>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="btn-icon" title="Détail" (click)="openDetail(a)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn-icon" title="Modifier" (click)="openEdit(a)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-icon notif" title="Notifier" (click)="openNotif(a)"
+                        [disabled]="a.statut==='VENDU'">
+                  <i class="bi bi-bell"></i>
+                </button>
+                <button class="btn-icon delete" title="Supprimer" (click)="delete(a)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredAssures.length === 0">
+            <td colspan="8" class="empty-row">Aucun assuré trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- PAGINATION -->
+      <div class="pagination-bar" *ngIf="totalPages > 1">
+        <button class="pg-btn" (click)="goToPage(1)" [disabled]="currentPage===1" title="Première page">
+          «
+        </button>
+        <button class="pg-btn" (click)="goToPage(currentPage-1)" [disabled]="currentPage===1">
+          ‹
+        </button>
+        <button *ngFor="let p of pageNumbers" class="pg-btn" [class.active]="p===currentPage" (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        <button class="pg-btn" (click)="goToPage(currentPage+1)" [disabled]="currentPage===totalPages">
+          ›
+        </button>
+        <button class="pg-btn" (click)="goToPage(totalPages)" [disabled]="currentPage===totalPages" title="Dernière page">
+          »
+        </button>
+        <span class="pg-info">Page {{ currentPage }} / {{ totalPages }} — {{ filteredAssures.length }} résultat(s)</span>
+      </div>
+    </div>
+    <div class="loading-block" *ngIf="loading"><span class="spinner"></span> Chargement…</div>
+  </div>
+
+  <!-- ====== ÉCHÉANCES PROCHES ====== -->
+  <div *ngIf="activeTab==='echeances'">
+    <div class="ap-toolbar">
+      <label class="ap-filter-label">Afficher les échéances dans les</label>
+      <select class="ap-filter-sel" [(ngModel)]="echeanceDays"
+              (change)="onEcheanceDaysChange()">
+        <option [value]="7">7 jours</option>
+        <option [value]="15">15 jours</option>
+        <option [value]="30">30 jours</option>
+        <option [value]="60">60 jours</option>
+        <option [value]="90">90 jours</option>
+      </select>
+      <span class="ap-count">{{ echeances.length }} contrat(s)</span>
+    </div>
+
+    <div class="echeance-cards">
+      <div class="ec-card" *ngFor="let a of echeances; trackBy: trackById"
+           [class.urgent]="a.joursRestants <= 7">
+        <div class="ec-top">
+          <div class="ec-info">
+            <div class="ec-name">{{ a.nomComplet }}</div>
+            <div class="ec-vehicle">{{ a.marque }} · <code>{{ a.immatricule }}</code></div>
+            <div class="ec-police" *ngIf="a.numeroPolicce">N° {{ a.numeroPolicce }}</div>
+          </div>
+          <div class="ec-jours" [class]="joursClass(a)">
+            <span class="ec-jours-num">{{ a.joursRestants }}</span>
+            <span class="ec-jours-txt">jours</span>
+          </div>
+        </div>
+        <div class="ec-bottom">
+          <div class="ec-meta">
+            <i class="bi bi-calendar3"></i> Échéance : <strong>{{ formatDate(a.echeance) }}</strong>
+          </div>
+          <div class="ec-meta">
+            <i class="bi bi-telephone"></i>
+            <a [href]="'tel:'+a.telephone">{{ a.telephone }}</a>
+          </div>
+          <div class="ec-actions">
+            <button class="btn-a btn-a-sm btn-a-outline" (click)="openDetail(a)">
+              <i class="bi bi-eye me-1"></i>Détail
+            </button>
+            <button class="btn-a btn-a-sm btn-a-teal" (click)="openNotif(a)">
+              <i class="bi bi-bell me-1"></i>Notifier
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="echeances.length===0">
+        <div class="es-icon">🎉</div>
+        <div>Aucune échéance dans les prochains {{ echeanceDays }} jours.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== EXPIRÉS ====== -->
+  <div *ngIf="activeTab==='expires'">
+    <div class="ap-toolbar">
+      <span class="ap-count rouge">{{ expires.length }} contrat(s) expiré(s)</span>
+    </div>
+    <div class="echeance-cards">
+      <div class="ec-card expired" *ngFor="let a of expires; trackBy: trackById">
+        <div class="ec-top">
+          <div class="ec-info">
+            <div class="ec-name">{{ a.nomComplet }}</div>
+            <div class="ec-vehicle">{{ a.marque }} · <code>{{ a.immatricule }}</code></div>
+          </div>
+          <div class="ec-jours rouge">
+            <span class="ec-jours-num">{{ a.joursRestants < 0 ? (a.joursRestants * -1) : 0 }}</span>
+            <span class="ec-jours-txt">j. dépassé</span>
+          </div>
+        </div>
+        <div class="ec-bottom">
+          <div class="ec-meta"><i class="bi bi-calendar-x"></i> Expiré le : <strong>{{ formatDate(a.echeance) }}</strong></div>
+          <div class="ec-meta"><i class="bi bi-telephone"></i> <a [href]="'tel:'+a.telephone">{{ a.telephone }}</a></div>
+          <div class="ec-actions">
+            <button class="btn-a btn-a-sm btn-a-outline" (click)="openEdit(a)">
+              <i class="bi bi-arrow-clockwise me-1"></i>Renouveler
+            </button>
+            <button class="btn-a btn-a-sm btn-a-teal" (click)="openNotif(a)">
+              <i class="bi bi-bell me-1"></i>Relancer
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="expires.length===0">
+        <div class="es-icon">✅</div>
+        <div>Aucun contrat expiré.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== STATS ====== -->
+  <div *ngIf="activeTab==='stats' && stats" class="stats-section">
+    <h3 class="stats-title">Répartition des échéances par mois ({{ stats.parMois[0]?.mois ? 'année en cours' : '' }})</h3>
+    <div class="stats-bars">
+      <div class="sb-item" *ngFor="let m of stats.parMois">
+        <div class="sb-bar-wrap">
+          <div class="sb-bar"
+               [style.height.%]="stats.parMois.length ? (m.count / (stats.total || 1)) * 100 + 10 : 0"
+               [title]="m.count + ' contrats'">
+            <span class="sb-count">{{ m.count }}</span>
+          </div>
+        </div>
+        <div class="sb-label">{{ m.moisLabel }}</div>
+      </div>
+    </div>
+    <div class="stats-summary">
+      <div class="ss-item"><span class="ss-dot actif"></span>Actifs : <strong>{{ stats.actifs }}</strong></div>
+      <div class="ss-item"><span class="ss-dot orange"></span>Proches (&lt;30j) : <strong>{{ stats.echeancesProches }}</strong></div>
+      <div class="ss-item"><span class="ss-dot rouge"></span>Expirés : <strong>{{ stats.expires }}</strong></div>
+      <div class="ss-item"><span class="ss-dot vendu"></span>Vendus : <strong>{{ stats.vendus }}</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== FORMULAIRE MODAL ====== -->
+<div class="modal-overlay" *ngIf="formMode !== 'none'" (click)="cancelForm()"></div>
+<div class="form-panel" *ngIf="formMode !== 'none'">
+  <div class="fp-header">
+    <h3>{{ formMode==='create' ? '➕ Nouvel assuré' : '✏️ Modifier assuré' }}</h3>
+    <button class="fp-close" (click)="cancelForm()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="fp-body">
+    <div class="fp-section-title">👤 Identité</div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Nom <span class="req">*</span></label>
+        <input type="text" [(ngModel)]="form.nom" placeholder="NOM">
+      </div>
+      <div class="fp-group">
+        <label>Prénom</label>
+        <input type="text" [(ngModel)]="form.prenom" placeholder="Prénom">
+      </div>
+    </div>
+
+    <div class="fp-section-title">🚗 Véhicule</div>
+    <div class="fp-grid-3">
+      <div class="fp-group">
+        <label>Marque</label>
+        <input type="text" [(ngModel)]="form.marque" placeholder="PEUGEOT, TOYOTA…">
+      </div>
+      <div class="fp-group">
+        <label>Immatricule</label>
+        <input type="text" [(ngModel)]="form.immatricule" placeholder="AA-123-XX">
+      </div>
+      <div class="fp-group">
+        <label>Puissance</label>
+        <input type="text" [(ngModel)]="form.puissanceFiscale" placeholder="06CV">
+      </div>
+    </div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Carburant</label>
+        <select [(ngModel)]="form.carburant">
+          <option value="">— sélectionner —</option>
+          <option *ngFor="let c of carburants" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+      <div class="fp-group">
+        <label>N° Police</label>
+        <input type="text" [(ngModel)]="form.numeroPolicce" placeholder="5102024000176/001">
+      </div>
+    </div>
+
+    <div class="fp-section-title">📅 Contrat</div>
+
+    <!-- Période de garantie (calcul auto de l'échéance) -->
+    <div class="periode-calc-block">
+      <div class="pcb-label">
+        <i class="bi bi-calendar-range me-1"></i>
+        Période de garantie <span class="pcb-hint">(calcul automatique de l'échéance)</span>
+      </div>
+      <div class="fp-grid-2">
+        <div class="fp-group">
+          <label>Date de début</label>
+          <input type="date" [(ngModel)]="form.periodeGarantieDebut"
+                 (change)="calculerEcheanceAuto()">
+        </div>
+        <div class="fp-group">
+          <label>Durée (années)</label>
+          <select [(ngModel)]="form.periodeGarantieAns" (change)="calculerEcheanceAuto()">
+            <option [ngValue]="undefined">— sélectionner —</option>
+            <option [ngValue]="1">1 an</option>
+            <option [ngValue]="2">2 ans</option>
+            <option [ngValue]="3">3 ans</option>
+            <option [ngValue]="5">5 ans</option>
+          </select>
+        </div>
+      </div>
+      <div class="pcb-result" *ngIf="form.echeance">
+        <i class="bi bi-check-circle-fill"></i>
+        Échéance calculée : <strong>{{ formatDate(form.echeance) }}</strong>
+        <span *ngIf="form.dateRappel"> · Rappel : {{ formatDate(form.dateRappel) }}</span>
+      </div>
+    </div>
+
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Date d'échéance <span class="req">*</span></label>
+        <input type="date" [(ngModel)]="form.echeance">
+      </div>
+      <div class="fp-group">
+        <label>Date de rappel</label>
+        <input type="date" [(ngModel)]="form.dateRappel">
+      </div>
+    </div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Prime (FCFA)</label>
+        <input type="number" [(ngModel)]="form.montantPrime" placeholder="0">
+      </div>
+      <div class="fp-group">
+        <label>Statut</label>
+        <select [(ngModel)]="form.statut">
+          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fp-section-title">📞 Contact</div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Téléphone 1 <span class="req">*</span></label>
+        <input type="tel" [(ngModel)]="form.telephone" placeholder="77 XXX XX XX">
+      </div>
+      <div class="fp-group">
+        <label>Téléphone 2</label>
+        <input type="tel" [(ngModel)]="form.telephone2" placeholder="78 XXX XX XX">
+      </div>
+    </div>
+    <div class="fp-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="form.email" placeholder="email@exemple.com">
+    </div>
+
+    <div class="fp-group">
+      <label>Notes</label>
+      <textarea [(ngModel)]="form.notes" rows="2" placeholder="VENDU, PANNE, remarques…"></textarea>
+    </div>
+  </div>
+  <div class="fp-footer">
+    <button class="btn-a btn-a-teal" (click)="save()" [disabled]="saving">
+      <span *ngIf="!saving"><i class="bi bi-check-lg me-1"></i>Sauvegarder</span>
+      <span *ngIf="saving"><span class="spinner-sm"></span> Sauvegarde…</span>
+    </button>
+    <button class="btn-a btn-a-outline" (click)="cancelForm()">Annuler</button>
+  </div>
+</div>
+
+<!-- ====== DÉTAIL MODAL ====== -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetail()"></div>
+<div class="detail-panel" *ngIf="showDetailModal && selectedAssure">
+  <div class="fp-header">
+    <div>
+      <h3>{{ selectedAssure.nomComplet }}</h3>
+      <span class="statut-badge" [class]="statutClass(selectedAssure.statut)">{{ selectedAssure.statut }}</span>
+    </div>
+    <button class="fp-close" (click)="closeDetail()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="fp-body">
+    <div class="detail-hero">
+      <div class="dh-vehicle">
+        <div class="dh-immat">{{ selectedAssure.immatricule || '—' }}</div>
+        <div class="dh-marque">{{ selectedAssure.marque }}</div>
+      </div>
+      <div class="dh-countdown" [class]="joursClass(selectedAssure)">
+        <div class="dhc-num">{{ selectedAssure.expire ? '⚠️' : joursLabel(selectedAssure) }}</div>
+        <div class="dhc-txt">{{ selectedAssure.expire ? 'Expiré' : 'avant échéance' }}</div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="dg-item"><span>N° Police</span><strong>{{ selectedAssure.numeroPolicce || '—' }}</strong></div>
+      <div class="dg-item"><span>Puissance</span><strong>{{ selectedAssure.puissanceFiscale || '—' }}</strong></div>
+      <div class="dg-item"><span>Carburant</span><strong>{{ selectedAssure.carburant || '—' }}</strong></div>
+      <div class="dg-item"><span>Prime</span><strong>{{ selectedAssure.montantPrime ? (selectedAssure.montantPrime | number) + ' FCFA' : '—' }}</strong></div>
+      <div class="dg-item"><span>Échéance</span><strong>{{ formatDate(selectedAssure.echeance) }}</strong></div>
+      <div class="dg-item"><span>Rappel</span><strong>{{ formatDate(selectedAssure.dateRappel || '') }}</strong></div>
+      <div class="dg-item"><span>Téléphone</span><strong><a [href]="'tel:'+selectedAssure.telephone">{{ selectedAssure.telephone }}</a></strong></div>
+      <div class="dg-item"><span>Email</span><strong>{{ selectedAssure.email || '—' }}</strong></div>
+    </div>
+
+    <div class="detail-notes" *ngIf="selectedAssure.notes">
+      <i class="bi bi-chat-left-text me-1"></i>{{ selectedAssure.notes }}
+    </div>
+
+    <!-- Historique notifications -->
+    <div class="notif-history" *ngIf="selectedAssure.notifications?.length">
+      <div class="nh-title">📬 Historique des notifications</div>
+      <div class="nh-item" *ngFor="let n of selectedAssure.notifications">
+        <span class="nh-type" [class.sms]="n.type==='SMS'">{{ n.type }}</span>
+        <span class="nh-msg">{{ n.message }}</span>
+        <span class="nh-date">{{ formatDate(n.envoyeAt) }}</span>
+        <span class="nh-status" [class.ok]="n.succes" [class.ko]="!n.succes">
+          {{ n.succes ? '✓' : '✗' }}
+        </span>
+      </div>
+    </div>
+    <div class="no-notif" *ngIf="!selectedAssure.notifications?.length">
+      <i class="bi bi-bell-slash me-1"></i> Aucune notification envoyée.
+    </div>
+  </div>
+  <div class="fp-footer">
+    <button class="btn-a btn-a-teal" (click)="openNotif(selectedAssure)">
+      <i class="bi bi-bell me-1"></i>Notifier
+    </button>
+    <button class="btn-a btn-a-outline" (click)="openEdit(selectedAssure)">
+      <i class="bi bi-pencil me-1"></i>Modifier
+    </button>
+    <button class="btn-a btn-a-ghost" (click)="closeDetail()">Fermer</button>
+  </div>
+</div>
+
+<!-- ====== NOTIFICATION MODAL ====== -->
+<div class="modal-overlay" *ngIf="showNotifModal" (click)="showNotifModal=false"></div>
+<div class="notif-panel" *ngIf="showNotifModal && selectedAssure">
+  <div class="fp-header">
+    <h3>📬 Envoyer une notification</h3>
+    <button class="fp-close" (click)="showNotifModal=false"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="fp-body">
+    <div class="notif-target">
+      <div class="nt-name">{{ selectedAssure.nomComplet }}</div>
+      <div class="nt-vehicle">{{ selectedAssure.marque }} — <code>{{ selectedAssure.immatricule }}</code></div>
+      <div class="nt-echeance">
+        Échéance : <strong [class]="joursClass(selectedAssure)">{{ formatDate(selectedAssure.echeance) }}</strong>
+        <span class="jours-badge ms-2" [class]="joursClass(selectedAssure)">{{ joursLabel(selectedAssure) }}</span>
+      </div>
+    </div>
+
+    <div class="notif-channels">
+      <label class="nc-toggle" [class.active]="notifForm.email">
+        <input type="checkbox" [(ngModel)]="notifForm.email">
+        <span class="nc-icon">📧</span>
+        <span class="nc-lbl">Email</span>
+        <span class="nc-addr">{{ selectedAssure.email || '(pas d\'email)' }}</span>
+      </label>
+      <label class="nc-toggle" [class.active]="notifForm.sms">
+        <input type="checkbox" [(ngModel)]="notifForm.sms">
+        <span class="nc-icon">📱</span>
+        <span class="nc-lbl">SMS</span>
+        <span class="nc-addr">{{ selectedAssure.telephone }}</span>
+      </label>
+    </div>
+
+    <div class="fp-group">
+      <label>Message personnalisé (optionnel)</label>
+      <textarea [(ngModel)]="notifForm.messagePersonnalise" rows="3"
+                placeholder="Laissez vide pour le message automatique…"></textarea>
+    </div>
+  </div>
+  <div class="fp-footer">
+    <button class="btn-a btn-a-teal" (click)="sendNotif()" [disabled]="sendingNotif || (!notifForm.email && !notifForm.sms)">
+      <span *ngIf="!sendingNotif"><i class="bi bi-send me-1"></i>Envoyer</span>
+      <span *ngIf="sendingNotif"><span class="spinner-sm"></span> Envoi…</span>
+    </button>
+    <button class="btn-a btn-a-outline" (click)="showNotifModal=false">Annuler</button>
+  </div>
+</div>
+
+<!-- ====== IMPORT EXCEL MODAL ====== -->
+<div class="modal-overlay" *ngIf="showImportModal" (click)="showImportModal=false"></div>
+<div class="import-panel" *ngIf="showImportModal">
+  <div class="fp-header">
+    <h3>📊 Import masse depuis Excel</h3>
+    <button class="fp-close" (click)="showImportModal=false"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="fp-body">
+
+    <!-- Format attendu -->
+    <div class="import-format-info">
+      <div class="ifi-title"><i class="bi bi-info-circle me-1"></i>Format du fichier Excel</div>
+      <div class="ifi-cols">
+        <div class="ifi-col" *ngFor="let c of excelColumns; let i = index">
+          <span class="ifi-idx">{{ i+1 }}</span>
+          <span class="ifi-name">{{ c.name }}</span>
+          <span class="ifi-req" *ngIf="c.required">*</span>
+        </div>
+      </div>
+      <div class="ifi-note">* Champs obligatoires. La 1ère ligne peut être un en-tête (ignoré automatiquement).</div>
+    </div>
+
+    <!-- Zone drop/upload -->
+    <div class="import-drop-zone"
+         [class.has-file]="importFile"
+         [class.drag-over]="isDragOver"
+         (click)="xlsxInput.click()"
+         (dragover)="$event.preventDefault(); isDragOver=true"
+         (dragleave)="isDragOver=false"
+         (drop)="onImportDrop($event)">
+      <input #xlsxInput type="file" accept=".xlsx,.xls" style="display:none" (change)="onImportFile($event)">
+      <div *ngIf="!importFile" class="idz-empty">
+        <div class="idz-icon">📂</div>
+        <div class="idz-text">Glisser le fichier ici ou <strong>cliquer</strong></div>
+        <div class="idz-hint">.xlsx ou .xls — données du fichier SUIVI_ASSURES</div>
+      </div>
+      <div *ngIf="importFile" class="idz-selected">
+        <i class="bi bi-file-earmark-excel-fill text-success" style="font-size:28px"></i>
+        <div class="idz-fname">{{ importFile.name }}</div>
+        <div class="idz-fsize">{{ (importFile.size / 1024).toFixed(1) }} KB</div>
+        <button class="idz-remove" (click)="$event.stopPropagation(); importFile=null; importResult=null">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Résultat import -->
+    <div class="import-result" *ngIf="importResult">
+      <div class="ir-stats">
+        <div class="ir-stat ok"><span>{{ importResult.imported }}</span> importés</div>
+        <div class="ir-stat warn"><span>{{ importResult.skipped }}</span> ignorés</div>
+        <div class="ir-stat err"><span>{{ importResult.errors }}</span> erreurs</div>
+      </div>
+      <div class="ir-messages">
+        <div class="ir-msg" *ngFor="let m of importResult.messages"
+             [class.ir-msg-ok]="m.startsWith('✅')"
+             [class.ir-msg-warn]="m.includes('ignorée')"
+             [class.ir-msg-err]="m.includes('erreur')">
+          {{ m }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="fp-footer">
+    <button class="btn-a btn-a-teal" (click)="doImport()" [disabled]="!importFile || importing">
+      <span *ngIf="!importing"><i class="bi bi-upload me-1"></i>Importer</span>
+      <span *ngIf="importing"><span class="spinner-sm"></span> Import en cours…</span>
+    </button>
+    <button class="btn-a btn-a-outline" (click)="downloadTemplate()">
+      <i class="bi bi-download me-1"></i> Modèle Excel
+    </button>
+    <button class="btn-a btn-a-ghost" (click)="showImportModal=false">Fermer</button>
+  </div>
+</div>

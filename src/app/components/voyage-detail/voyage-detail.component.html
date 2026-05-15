@@ -1,0 +1,348 @@
+<app-navbar></app-navbar>
+
+<div class="loading-page" *ngIf="loading">
+  <div class="spinner-voyageur"></div>
+  <span>Chargement du voyage…</span>
+</div>
+
+<ng-container *ngIf="!loading && voyage">
+
+<!-- HERO -->
+<div class="detail-hero">
+  <img [src]="voyage.imageUrl" [alt]="voyage.titre" class="detail-hero-img">
+  <div class="detail-hero-overlay"></div>
+  <div class="section-wrapper detail-hero-content">
+    <a routerLink="/voyages" class="back-link"><i class="bi bi-arrow-left"></i> Retour aux voyages</a>
+    <div class="detail-hero-body">
+      <div>
+        <div class="detail-categ">{{ voyage.categorie }}</div>
+        <h1>{{ voyage.titre }}</h1>
+        <div class="detail-meta-pills">
+          <span><i class="bi bi-geo-alt-fill"></i> {{ voyage.destination }}, {{ voyage.paysDestination }}</span>
+          <span><i class="bi bi-calendar3"></i> {{ voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</span>
+          <span><i class="bi bi-clock"></i> {{ voyage.dureeJours }} jours</span>
+          <span *ngIf="voyage.hotel"><i class="bi bi-building"></i> {{ voyage.hotel.nom }}</span>
+        </div>
+      </div>
+      <div class="detail-price-badge">
+        <div class="dpb-from">À partir de</div>
+        <div class="dpb-price">{{ voyage.prixParPersonne | number:'1.0-0' }} <span>€</span></div>
+        <div class="dpb-per">/ personne</div>
+        <button class="btn-voyageur btn-voyageur-gold btn-voyageur-lg" (click)="startBooking()">
+          Réserver <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="detail-content section-wrapper">
+  <div class="detail-main">
+
+    <section class="detail-section">
+      <h2><i class="bi bi-info-circle-fill text-teal me-2"></i>À propos</h2>
+      <p class="detail-description">{{ voyage.description }}</p>
+    </section>
+
+    <section class="detail-section" *ngIf="voyage.highlights?.length">
+      <h2><i class="bi bi-stars text-gold me-2"></i>Points forts</h2>
+      <ul class="highlights-list">
+        <li *ngFor="let h of voyage.highlights"><span class="hl-dot"></span>{{ h }}</li>
+      </ul>
+    </section>
+
+    <section class="detail-section" *ngIf="voyage.hotel">
+      <h2><i class="bi bi-building text-teal me-2"></i>Hébergement</h2>
+      <div class="hotel-card">
+        <img [src]="voyage.hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'" [alt]="voyage.hotel.nom">
+        <div class="hotel-info">
+          <div class="hotel-stars"><i class="bi bi-star-fill" *ngFor="let s of starsArray(voyage.hotel.etoiles)"></i></div>
+          <h3>{{ voyage.hotel.nom }}</h3>
+          <p><i class="bi bi-geo-alt-fill me-1 text-teal"></i>{{ voyage.hotel.ville }}, {{ voyage.hotel.pays }}</p>
+          <div class="hotel-rating" *ngIf="voyage.hotel.noteMoyenne">
+            <span class="rating-num">{{ voyage.hotel.noteMoyenne }}</span>
+            <div class="rating-stars"><i class="bi bi-star-fill" *ngFor="let s of [1,2,3,4,5]"></i></div>
+            <span class="rating-label">Excellent</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="voyage.inclusions?.length">
+      <h2><i class="bi bi-check-circle-fill text-teal me-2"></i>Inclusions</h2>
+      <ul class="inclusions-list">
+        <li *ngFor="let inc of voyage.inclusions"><i class="bi bi-check2-circle"></i> {{ inc }}</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- ===== BOOKING SIDEBAR ===== -->
+  <div class="detail-sidebar" id="booking-panel">
+    <div class="booking-card">
+      <div class="booking-header">
+        <div class="bp-price-display">
+          <span class="bp-from">Prix par personne</span>
+          <strong>{{ voyage.prixParPersonne | number:'1.0-0' }} €</strong>
+        </div>
+        <div class="avail-track mt-2">
+          <div class="avail-bar" [class]="availClass" [style.width.%]="availPct"></div>
+        </div>
+        <span class="avail-text" [class]="'avail-text-' + availClass">{{ availLabel }}</span>
+      </div>
+
+      <!-- STEP 1: Voyageurs -->
+      <div class="booking-step" *ngIf="bookingStep === 1">
+        <div class="step-progress"><div class="sp-fill" style="width:25%"></div></div>
+        <div class="step-tag">Étape 1 / 4 — Voyageurs</div>
+        <div class="form-voyageur">
+          <div class="form-group">
+            <label class="form-label">Nombre de personnes</label>
+            <select class="form-control" [(ngModel)]="nbPersonnes">
+              <option [ngValue]="1">1 personne</option>
+              <option [ngValue]="2">2 personnes</option>
+              <option [ngValue]="3">3 personnes</option>
+              <option [ngValue]="4">4 personnes</option>
+              <option [ngValue]="5">5 personnes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type de chambre</label>
+            <select class="form-control" [(ngModel)]="typeHebergement">
+              <option value="standard">Standard</option>
+              <option value="superieure">Supérieure (+10%)</option>
+              <option value="suite">Suite (+20%)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">N° Passeport</label>
+            <input type="text" class="form-control" [(ngModel)]="passportNumber" placeholder="FR123456789">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Demandes spéciales</label>
+            <input type="text" class="form-control" [(ngModel)]="notes" placeholder="Allergies, préférences…">
+          </div>
+        </div>
+        <div class="booking-total">
+          <span>Total estimé</span>
+          <strong>{{ totalPrice | number:'1.0-0' }} €</strong>
+        </div>
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-md mt-3" (click)="goStep(2)">
+          Continuer <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+
+      <!-- STEP 2: Récapitulatif -->
+      <div class="booking-step" *ngIf="bookingStep === 2">
+        <div class="step-progress"><div class="sp-fill" style="width:50%"></div></div>
+        <div class="step-tag">Étape 2 / 4 — Récapitulatif</div>
+        <div class="summary-rows">
+          <div class="sr-row"><span>🗺️ Voyage</span><strong>{{ voyage.titre }}</strong></div>
+          <div class="sr-row"><span>📍 Destination</span><strong>{{ voyage.destination }}</strong></div>
+          <div class="sr-row"><span>✈️ Départ</span><strong>{{ voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</strong></div>
+          <div class="sr-row"><span>🏠 Retour</span><strong>{{ voyage.dateRetour | date:'d MMM yyyy':'':'fr' }}</strong></div>
+          <div class="sr-row"><span>⏱️ Durée</span><strong>{{ voyage.dureeJours }} jours</strong></div>
+          <div class="sr-row"><span>👥 Voyageurs</span><strong>{{ nbPersonnes }}</strong></div>
+          <div class="sr-row"><span>🛏️ Chambre</span><strong>{{ typeHebergement | titlecase }}</strong></div>
+          <div class="sr-row" *ngIf="voyage.hotel"><span>🏨 Hôtel</span><strong>{{ voyage.hotel.nom }}</strong></div>
+          <div class="sr-row total"><span>💰 Total</span><strong>{{ totalPrice | number:'1.0-0' }} €</strong></div>
+        </div>
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-md" (click)="goStep(3)">
+          Choisir le paiement <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+        <button class="btn-back" (click)="goStep(1)">← Retour</button>
+      </div>
+
+      <!-- STEP 3: Paiement -->
+      <div class="booking-step" *ngIf="bookingStep === 3">
+        <div class="step-progress"><div class="sp-fill" style="width:75%"></div></div>
+        <div class="step-tag">Étape 3 / 4 — Paiement</div>
+
+        <!-- Méthodes de paiement -->
+        <div class="pay-section-title">💳 Carte & Virement</div>
+        <div class="pay-methods-row">
+          <div class="pay-btn" [class.active]="payMethod === 'card'" (click)="payMethod = 'card'">
+            <i class="bi bi-credit-card-fill"></i> Carte
+          </div>
+          <div class="pay-btn" [class.active]="payMethod === 'paypal'" (click)="payMethod = 'paypal'">
+            <i class="bi bi-paypal"></i> PayPal
+          </div>
+          <div class="pay-btn" [class.active]="payMethod === 'virement'" (click)="payMethod = 'virement'">
+            <i class="bi bi-bank2"></i> Virement
+          </div>
+        </div>
+
+        <!-- Mobile Money -->
+        <div class="pay-section-title mobile-title">📱 Mobile Money</div>
+        <div class="mobile-money-buttons">
+          <div *ngFor="let p of mobileProviders"
+               class="mm-btn"
+               [class.active]="payMethod === p.id.toLowerCase()"
+               [style.--mm-color]="p.color"
+               [style.--mm-bg]="p.bgColor"
+               [style.--mm-border]="p.borderColor"
+               (click)="selectPayMethod(p.id)">
+            <span class="mm-emoji">{{ p.emoji }}</span>
+            <span class="mm-label">{{ p.label }}</span>
+            <span class="mm-check" *ngIf="payMethod === p.id.toLowerCase()">✓</span>
+          </div>
+        </div>
+
+        <!-- Carte bancaire -->
+        <div class="pay-form" *ngIf="payMethod === 'card'">
+          <div class="form-voyageur">
+            <div class="form-group">
+              <label class="form-label">Numéro de carte</label>
+              <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" (input)="formatCardNumber($event)" [value]="cardNumber">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Expiration</label>
+                <input type="text" class="form-control" [(ngModel)]="cardExpiry" placeholder="MM/AA" maxlength="5">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-control" [(ngModel)]="cardCVV" placeholder="123" maxlength="3">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Titulaire</label>
+              <input type="text" class="form-control" [(ngModel)]="cardHolder" placeholder="JEAN DUPONT">
+            </div>
+          </div>
+        </div>
+
+        <!-- PayPal -->
+        <div class="paypal-box" *ngIf="payMethod === 'paypal'">
+          <i class="bi bi-paypal" style="font-size:36px;color:#003087"></i>
+          <p>Vous serez redirigé vers PayPal pour finaliser le paiement de <strong>{{ totalPrice | number:'1.0-0' }} €</strong>.</p>
+        </div>
+
+        <!-- Virement -->
+        <div class="virement-box" *ngIf="payMethod === 'virement'">
+          <p><strong>IBAN :</strong> FR76 3000 4000 0100 0000 0012 345</p>
+          <p><strong>BIC :</strong> BNPAFRPPXXX</p>
+          <p style="font-size:12px;color:var(--gray);margin-top:8px">Référence : VGR-{{ voyage.id }}-{{ nbPersonnes }}P</p>
+        </div>
+
+        <!-- Mobile Money OTP Flow -->
+        <div class="mm-flow" *ngIf="isMobileMoney && activeProvider">
+          <div class="mm-flow-header" [style.background]="activeProvider.bgColor" [style.border-color]="activeProvider.borderColor">
+            <span class="mm-flow-emoji">{{ activeProvider.emoji }}</span>
+            <div>
+              <div class="mm-flow-name" [style.color]="activeProvider.color">{{ activeProvider.label }}</div>
+              <div class="mm-flow-desc">{{ activeProvider.description }}</div>
+            </div>
+          </div>
+
+          <!-- Countries -->
+          <div class="mm-countries">
+            <span>Disponible au :</span>
+            <span class="country-tag" *ngFor="let c of activeProvider.countries">{{ c }}</span>
+          </div>
+
+          <!-- Phone input -->
+          <div class="form-group mt-3" *ngIf="!otpVerified">
+            <label class="form-label">Numéro {{ activeProvider.label }}</label>
+            <div class="phone-input-wrap">
+              <span class="phone-prefix" [style.background]="activeProvider.bgColor" [style.color]="activeProvider.color">{{ activeProvider.prefix }}</span>
+              <input type="tel" class="form-control phone-input" [(ngModel)]="mobilePhone"
+                     [placeholder]="activeProvider.placeholder" maxlength="15" (input)="formatPhone($event)">
+            </div>
+          </div>
+
+          <!-- Bouton Envoyer OTP -->
+          <button class="btn-otp" [style.background]="activeProvider.color" (click)="sendOTP()" *ngIf="!otpSent && !otpVerified" [disabled]="sendingOTP">
+            <span *ngIf="!sendingOTP">{{ activeProvider.emoji }} Recevoir le code OTP</span>
+            <span *ngIf="sendingOTP"><span class="spinner-border spinner-border-sm me-1"></span>Envoi en cours…</span>
+          </button>
+
+          <!-- Saisie OTP -->
+          <div class="otp-section" *ngIf="otpSent && !otpVerified">
+            <div class="otp-sent-info">
+              <i class="bi bi-phone-fill"></i>
+              Code envoyé au <strong>{{ mobilePhone }}</strong>
+              <button class="resend-link" (click)="sendOTP()">Renvoyer</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Code OTP (6 chiffres)</label>
+              <div class="otp-input-wrap">
+                <input type="text" class="form-control otp-input" [(ngModel)]="otpCode"
+                       placeholder="_ _ _ _ _ _" maxlength="6">
+                <button class="btn-verify-otp" [style.background]="activeProvider.color" (click)="verifyOTP()">
+                  Vérifier
+                </button>
+              </div>
+              <div class="otp-error" *ngIf="otpError">
+                <i class="bi bi-exclamation-triangle-fill"></i> {{ otpError }}
+              </div>
+            </div>
+            <div class="otp-demo-hint">
+              <i class="bi bi-info-circle"></i> Démo — Code : <strong>{{ otpGenerated }}</strong>
+            </div>
+          </div>
+
+          <!-- OTP Vérifié -->
+          <div class="otp-verified" *ngIf="otpVerified">
+            <div class="otp-verified-icon">✓</div>
+            <div>
+              <div class="otp-verified-title">Identité confirmée!</div>
+              <div class="otp-verified-sub">{{ mobilePhone }} · {{ activeProvider.label }}</div>
+            </div>
+          </div>
+
+          <!-- Montant -->
+          <div class="mm-amount-display" [style.border-color]="activeProvider.borderColor">
+            <span>Montant à payer</span>
+            <strong [style.color]="activeProvider.color">{{ totalPrice | number:'1.0-0' }} FCFA</strong>
+          </div>
+        </div>
+
+        <!-- Sécurité -->
+        <div class="secure-badge">
+          <i class="bi bi-shield-lock-fill"></i> Paiement 100% sécurisé — SSL 256 bits
+        </div>
+
+        <button class="btn-voyageur btn-voyageur-gold btn-voyageur-full btn-voyageur-md"
+                (click)="processPayment()"
+                [disabled]="processing || !canProceedPayment()">
+          <span *ngIf="!processing">
+            <ng-container *ngIf="!isMobileMoney">Payer {{ totalPrice | number:'1.0-0' }} € <i class="bi bi-lock-fill ms-1"></i></ng-container>
+            <ng-container *ngIf="isMobileMoney && otpVerified">Confirmer {{ totalPrice | number:'1.0-0' }} FCFA <i class="bi bi-lock-fill ms-1"></i></ng-container>
+            <ng-container *ngIf="isMobileMoney && !otpVerified">Vérifiez le code OTP d'abord</ng-container>
+          </span>
+          <span *ngIf="processing"><span class="spinner-border spinner-border-sm me-2"></span>Traitement…</span>
+        </button>
+        <button class="btn-back" (click)="goStep(2)" [disabled]="processing">← Retour</button>
+      </div>
+
+      <!-- STEP 4: Confirmation -->
+      <div class="booking-step booking-success" *ngIf="bookingStep === 4">
+        <div class="success-icon">✓</div>
+        <h3>{{ isMobileMoney ? 'Demande envoyée!' : 'Réservation confirmée! 🎉' }}</h3>
+
+        <div class="success-mm-notice" *ngIf="isMobileMoney && activeProvider">
+          <div class="smn-icon">{{ activeProvider.emoji }}</div>
+          <div class="smn-text">
+            <strong>Paiement {{ activeProvider.label }} en attente de validation</strong>
+            <p>Notre équipe va valider votre paiement dans les <strong>2-24 heures</strong>. Vous recevrez une notification dès la confirmation.</p>
+          </div>
+        </div>
+
+        <p *ngIf="!isMobileMoney">Votre voyage est réservé et votre paiement confirmé. Un email de confirmation a été envoyé.</p>
+
+        <div class="booking-ref-box">
+          <small>Numéro de réservation</small>
+          <strong>{{ bookingRef }}</strong>
+        </div>
+
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-md" (click)="goToReservations()">
+          <i class="bi bi-calendar-check me-2"></i> Suivre ma réservation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</ng-container>
+
+<app-footer></app-footer>

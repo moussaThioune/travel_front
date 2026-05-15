@@ -1,0 +1,60 @@
+<div class="voyage-card card-voyageur" (click)="goToDetail()">
+  <!-- Image -->
+  <div class="vc-img-wrap">
+    <img [src]="voyage.imageUrl" [alt]="voyage.titre" loading="lazy">
+    <span class="vc-categ" [style.background]="categColor">{{ categLabel }}</span>
+    <span class="vc-places" [class.urgent]="voyage.nombrePlacesDisponibles <= 3">
+      <i class="bi bi-people-fill me-1"></i>{{ availLabel }}
+    </span>
+    <div class="vc-favorite">
+      <i class="bi bi-heart"></i>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="vc-body">
+    <div class="vc-destination">
+      <i class="bi bi-geo-alt-fill me-1"></i>
+      {{ voyage.destination }}, {{ voyage.paysDestination }}
+    </div>
+    <h3 class="vc-title">{{ voyage.titre }}</h3>
+    <p class="vc-desc">{{ voyage.description | slice:0:110 }}{{ voyage.description.length > 110 ? '…' : '' }}</p>
+
+    <!-- Meta -->
+    <div class="vc-meta">
+      <span><i class="bi bi-calendar3"></i> {{ voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</span>
+      <span><i class="bi bi-clock"></i> {{ voyage.dureeJours }} jours</span>
+      <span *ngIf="voyage.hotel">
+        <i class="bi bi-building"></i>
+        <span class="stars-inline">
+          <i class="bi bi-star-fill" *ngFor="let s of starsArray(voyage.hotel.etoiles)"></i>
+        </span>
+      </span>
+    </div>
+
+    <!-- Availability -->
+    <div class="vc-avail">
+      <div class="vc-avail-header">
+        <span>Disponibilité</span>
+        <span class="vc-avail-label" [class]="'avail-text-' + availClass">{{ availLabel }}</span>
+      </div>
+      <div class="avail-track">
+        <div class="avail-bar" [class]="availClass" [style.width.%]="availPct"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="vc-footer">
+      <div class="vc-price">
+        <div class="vc-price-from">À partir de</div>
+        <div class="vc-price-amount">
+          {{ formatPrice(voyage.prixParPersonne) }} <small>FCFA</small>
+        </div>
+        <div class="vc-price-per">/personne</div>
+      </div>
+      <button class="btn-reserve" (click)="onReserve($event)">
+        Réserver <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+</div>

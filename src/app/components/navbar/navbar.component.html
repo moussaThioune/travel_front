@@ -1,0 +1,122 @@
+<nav [class.scrolled]="isScrolled">
+  <div class="nav-inner">
+
+    <!-- Logo -->
+    <a class="nav-logo" routerLink="/" (click)="closeMenu()">
+      <!-- Logo YVAS fidèle à l'original -->
+      <svg width="130" height="46" viewBox="0 0 130 46" fill="none" xmlns="http://www.w3.org/2000/svg" class="yvas-logo">
+        <!-- Branche gauche du Y -->
+        <line x1="4" y1="3" x2="14" y2="19" stroke="#1a4b8c" stroke-width="4" stroke-linecap="round"/>
+        <!-- Branche droite du Y -->
+        <line x1="24" y1="3" x2="14" y2="19" stroke="#1a4b8c" stroke-width="4" stroke-linecap="round"/>
+        <!-- Tige du Y -->
+        <line x1="14" y1="19" x2="14" y2="33" stroke="#1a4b8c" stroke-width="4" stroke-linecap="round"/>
+        <!-- Arc doré (swoosh) -->
+        <path d="M2 8 Q14 -2 28 6 Q18 10 14 19" fill="#c9a84c" opacity="0.95"/>
+        <!-- VAS -->
+        <text x="31" y="26" font-family="Arial Black,sans-serif" font-weight="900" font-size="21" fill="#1a4b8c" letter-spacing="0.5">VAS</text>
+        <!-- Yatou Voyages -->
+        <text x="31" y="35" font-family="Arial,sans-serif" font-size="7" fill="#1a4b8c" font-weight="600">Yatou Voyages</text>
+        <!-- Assurances et services -->
+        <text x="31" y="43" font-family="Arial,sans-serif" font-size="6.5" fill="#666">Assurances et services</text>
+      </svg>
+    </a>
+
+    <!-- Desktop + Mobile links -->
+    <div class="nav-links" [class.open]="isMenuOpen">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
+      <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()">Voyages</a>
+      <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()">Destinations</a>
+      <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">Mes Réservations</a>
+      <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">
+        <i class="bi bi-gear-fill me-1"></i>Admin
+      </a>
+    </div>
+
+    <!-- Actions -->
+    <div class="nav-actions">
+
+      <!-- Notification Bell (logged in) -->
+      <div class="notif-btn-wrap" *ngIf="authService.isLoggedIn()">
+        <button class="notif-btn" (click)="toggleNotif()" [class.has-notif]="unreadCount > 0" title="Notifications">
+          <i class="bi bi-bell-fill"></i>
+          <span class="notif-dot" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+
+        <!-- Notification Dropdown -->
+        <div class="notif-panel" *ngIf="showNotifPanel">
+          <div class="notif-header">
+            <span class="notif-panel-title">Notifications</span>
+            <button class="notif-mark-all" (click)="notifService.markAllRead()">Tout lire</button>
+          </div>
+          <div class="notif-list">
+            <div class="notif-empty" *ngIf="!notifications.length">
+              <i class="bi bi-bell-slash"></i>
+              <p>Aucune notification</p>
+            </div>
+            <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="notifService.markRead(n.id)">
+              <span class="notif-icon">{{ n.icon }}</span>
+              <div class="notif-content">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.timestamp | date:'HH:mm' }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="notif-footer">
+            <a routerLink="/mes-reservations" (click)="closeDropdowns()">Voir mes réservations →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth buttons (not logged in) -->
+      <ng-container *ngIf="!authService.isLoggedIn()">
+        <a routerLink="/connexion" class="btn-login-nav">Se connecter</a>
+        <a routerLink="/inscription" class="btn-voyageur btn-voyageur-gold btn-voyageur-sm">S'inscrire</a>
+      </ng-container>
+
+      <!-- User avatar (logged in) -->
+      <div class="user-menu-wrap" *ngIf="authService.isLoggedIn()">
+        <button class="user-avatar-btn" (click)="toggleUserMenu()">
+          <span class="avatar-initials">{{ authService.userInitials() }}</span>
+          <span class="user-name-btn">{{ authService.currentUser()?.firstName }}</span>
+          <i class="bi bi-chevron-down ms-1" style="font-size:11px"></i>
+        </button>
+
+        <div class="user-dropdown" *ngIf="showUserMenu">
+          <div class="user-dropdown-header">
+            <div class="avatar-lg">{{ authService.userInitials() }}</div>
+            <div class="ud-name">{{ authService.fullName() }}</div>
+            <div class="ud-email">{{ authService.currentUser()?.email }}</div>
+          </div>
+          <div class="user-dropdown-links">
+            <a routerLink="/mes-reservations" (click)="closeDropdowns()">
+              <i class="bi bi-calendar-check"></i> Mes réservations
+              <span class="ud-count">{{ reservationService.myReservations().length }}</span>
+            </a>
+            <a routerLink="/profil" (click)="closeDropdowns()">
+              <i class="bi bi-person"></i> Mon profil
+            </a>
+            <a *ngIf="authService.isAdmin()" routerLink="/admin" (click)="closeDropdowns()">
+              <i class="bi bi-speedometer2"></i> Administration
+            </a>
+            <a *ngIf="authService.isAdmin()" routerLink="/assures" (click)="closeDropdowns()">
+              <i class="bi bi-car-front"></i> Suivi Assurés
+            </a>
+          </div>
+          <button class="ud-logout" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Se déconnecter
+          </button>
+        </div>
+      </div>
+
+      <!-- Hamburger -->
+      <button class="hamburger" (click)="toggleMenu()" [class.open]="isMenuOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-overlay" *ngIf="isMenuOpen" (click)="closeMenu()"></div>

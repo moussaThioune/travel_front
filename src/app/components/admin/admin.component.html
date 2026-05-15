@@ -1,0 +1,605 @@
+<app-navbar></app-navbar>
+
+<!-- ACCÈS REFUSÉ -->
+<div class="access-denied" *ngIf="!authService.isAdmin()">
+  <div class="ad-icon">🔒</div>
+  <h2>Accès restreint</h2>
+  <p>Cette page est réservée aux administrateurs.</p>
+  <a routerLink="/connexion" class="btn-voyageur btn-voyageur-teal btn-voyageur-md">Se connecter en tant qu'admin</a>
+  <div class="ad-hint">
+    <strong>Compte admin :</strong> admin&#64;voyageur.fr / admin123
+  </div>
+</div>
+
+<div class="admin-layout" *ngIf="authService.isAdmin()">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="as-brand">
+      <span class="as-logo">⚙️</span>
+      <div><div class="as-title">Backoffice</div><div class="as-subtitle">Voyageur Admin</div></div>
+    </div>
+
+    <nav class="as-nav">
+      <button [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">
+        <i class="bi bi-speedometer2"></i> Tableau de bord
+      </button>
+      <button [class.active]="activeTab === 'mobile_money'" (click)="activeTab = 'mobile_money'" class="mm-nav-btn">
+        <i class="bi bi-phone-fill"></i> Mobile Money
+        <span class="nav-badge" *ngIf="mobileMoneyPending.length > 0">{{ mobileMoneyPending.length }}</span>
+      </button>
+      <button [class.active]="activeTab === 'paiements'" (click)="activeTab = 'paiements'">
+        <i class="bi bi-credit-card-fill"></i> Tous les paiements
+      </button>
+      <button [class.active]="activeTab === 'reservations'" (click)="activeTab = 'reservations'">
+        <i class="bi bi-calendar-check-fill"></i> Réservations
+      </button>
+      <button [class.active]="activeTab === 'clients'" (click)="activeTab = 'clients'">
+        <i class="bi bi-people-fill"></i> Clients
+      </button>
+      <button [class.active]="activeTab === 'voyages'" (click)="activeTab = 'voyages'">
+        <i class="bi bi-airplane-fill"></i> Voyages
+      </button>
+      <button [class.active]="activeTab === 'assures'" (click)="activeTab = 'assures'" class="assures-nav-btn">
+        <i class="bi bi-car-front-fill"></i> Assurés
+      </button>
+    </nav>
+
+    <div class="as-user">
+      <div class="as-user-avatar">{{ authService.userInitials() }}</div>
+      <div class="as-user-info">
+        <div class="as-user-name">{{ authService.fullName() }}</div>
+        <div class="as-user-role">Administrateur</div>
+      </div>
+    </div>
+
+    <a routerLink="/" class="as-back"><i class="bi bi-arrow-left me-2"></i>Retour au site</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div *ngIf="activeTab === 'dashboard'">
+      <div class="admin-page-header">
+        <div><h1>Tableau de bord</h1><p>Vue d'ensemble de l'activité Voyageur.</p></div>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="stats-grid">
+        <div class="stat-card teal">
+          <div class="sc-icon">📋</div>
+          <div class="sc-num">{{ dashStats.totalReservations }}</div>
+          <div class="sc-label">Réservations</div>
+          <div class="sc-sub">{{ dashStats.resEnAttente }} en attente</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="sc-icon">💰</div>
+          <div class="sc-num">{{ dashStats.revenuTotal | number:'1.0-0' }}<small> €</small></div>
+          <div class="sc-label">Revenu total</div>
+          <div class="sc-sub">Paiements validés</div>
+        </div>
+        <div class="stat-card coral">
+          <div class="sc-icon">⏳</div>
+          <div class="sc-num">{{ dashStats.pmtEnAttente }}</div>
+          <div class="sc-label">Paiements en attente</div>
+          <div class="sc-sub" *ngIf="dashStats.pmtEnAttente > 0" (click)="activeTab = 'mobile_money'" style="cursor:pointer;text-decoration:underline">Valider maintenant →</div>
+        </div>
+        <div class="stat-card green">
+          <div class="sc-icon">👥</div>
+          <div class="sc-num">{{ dashStats.totalClients }}</div>
+          <div class="sc-label">Clients</div>
+          <div class="sc-sub">Voyageurs enregistrés</div>
+        </div>
+      </div>
+
+      <!-- Mobile Money Summary -->
+      <div class="mm-summary-section">
+        <h3 class="admin-section-title"><i class="bi bi-phone-fill text-teal me-2"></i>Revenus Mobile Money</h3>
+        <div class="mm-revenue-cards">
+          <div class="mm-rev-card orange">
+            <div class="mmrc-top"><span class="mm-emoji-big">🟠</span><span class="mmrc-label">Orange Money</span></div>
+            <div class="mmrc-amount">{{ dashStats.orangeMoney | number:'1.0-0' }} <small>FCFA</small></div>
+          </div>
+          <div class="mm-rev-card blue">
+            <div class="mmrc-top"><span class="mm-emoji-big">🔵</span><span class="mmrc-label">Wave</span></div>
+            <div class="mmrc-amount">{{ dashStats.wave | number:'1.0-0' }} <small>FCFA</small></div>
+          </div>
+          <div class="mm-rev-card green">
+            <div class="mmrc-top"><span class="mm-emoji-big">🟢</span><span class="mmrc-label">Free Money</span></div>
+            <div class="mmrc-amount">{{ dashStats.freeMoney | number:'1.0-0' }} <small>FCFA</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending alerts -->
+      <div class="pending-alert" *ngIf="mobileMoneyPending.length > 0">
+        <div class="pa-icon">⚠️</div>
+        <div class="pa-text">
+          <strong>{{ mobileMoneyPending.length }} paiement(s) Mobile Money en attente de validation</strong>
+          <p>Ces paiements nécessitent votre validation manuelle.</p>
+        </div>
+        <button class="btn-voyageur btn-voyageur-gold btn-voyageur-sm" (click)="activeTab = 'mobile_money'">
+          Valider maintenant
+        </button>
+      </div>
+
+      <!-- Recent reservations -->
+      <h3 class="admin-section-title mt-4"><i class="bi bi-clock-history text-teal me-2"></i>Réservations récentes</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Référence</th><th>Client</th><th>Voyage</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of reservations | slice:0:8" (click)="openResDetail(r)" style="cursor:pointer">
+              <td><code>{{ r.numeroReservation }}</code></td>
+              <td>{{ r.client.firstName }} {{ r.client.lastName }}</td>
+              <td>{{ r.voyage.titre }}</td>
+              <td>{{ r.prixTotal | number:'1.0-0' }} €</td>
+              <td><span class="status-badge" [class]="statutClass(r.statut)">{{ statutLabel(r.statut) }}</span></td>
+              <td>{{ r.dateReservation | date:'dd/MM/yy':'':'fr' }}</td>
+            </tr>
+            <tr *ngIf="!reservations.length"><td colspan="6" class="empty-row">Aucune réservation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Widget Assurés -->
+      <div class="assures-widget">
+        <div class="aw-header">
+          <h3><i class="bi bi-car-front-fill me-2"></i>Suivi des Assurés</h3>
+          <a routerLink="/assures" class="btn-voyageur btn-voyageur-outline-teal btn-voyageur-sm">
+            Gérer les assurés <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="aw-body">
+          <div class="aw-stat rouge"><i class="bi bi-exclamation-triangle-fill"></i>
+            <div class="aws-info"><strong>Contrats expirés</strong><span>À renouveler d'urgence</span></div>
+            <a routerLink="/assures" class="aws-cta">Voir →</a>
+          </div>
+          <div class="aw-stat orange"><i class="bi bi-calendar-warning-fill"></i>
+            <div class="aws-info"><strong>Échéances proches</strong><span>Rappels à envoyer &lt;30j</span></div>
+            <a routerLink="/assures" class="aws-cta">Voir →</a>
+          </div>
+          <div class="aw-info-text">
+            <i class="bi bi-bell-fill me-2"></i>
+            Le job de rappel automatique s'exécute le <strong>25 de chaque mois à 08h00</strong> — email + SMS envoyés automatiquement.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== MOBILE MONEY TAB ===== -->
+    <div *ngIf="activeTab === 'mobile_money'">
+      <div class="admin-page-header">
+        <div>
+          <h1><i class="bi bi-phone-fill me-2 text-teal"></i>Validation Mobile Money</h1>
+          <p>Validez ou rejetez les paiements Orange Money, Wave et Free Money.</p>
+        </div>
+      </div>
+
+      <!-- Alertes en attente -->
+      <div class="mm-pending-alert" *ngIf="mobileMoneyPending.length === 0">
+        <div style="text-align:center;padding:48px;color:var(--gray)">
+          <div style="font-size:48px;margin-bottom:16px">✅</div>
+          <strong style="display:block;font-size:18px;color:var(--ink);margin-bottom:8px">Tout est à jour!</strong>
+          <p>Aucun paiement mobile money en attente de validation.</p>
+        </div>
+      </div>
+
+      <div *ngFor="let p of mobileMoneyPending; trackBy: trackById" class="mm-validation-card">
+        <div class="mvc-header">
+          <div class="mvc-provider" [style.background]="getProvider(p.modePaiement)?.bgColor" [style.border-color]="getProvider(p.modePaiement)?.borderColor">
+            <span class="mvc-emoji">{{ getProvider(p.modePaiement)?.emoji }}</span>
+            <div>
+              <div class="mvc-provider-name" [style.color]="getProvider(p.modePaiement)?.color">{{ getProvider(p.modePaiement)?.label }}</div>
+              <div class="mvc-ref">{{ p.numeroPaiement }}</div>
+            </div>
+          </div>
+          <div class="mvc-amount">
+            <div class="mvc-amount-num">{{ p.montant | number:'1.0-0' }} FCFA</div>
+            <div class="mvc-date">{{ p.datePaiement | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+        </div>
+
+        <div class="mvc-body">
+          <div class="mvc-info-grid">
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Client</span>
+              <span class="mvc-info-val">{{ p.clientNom }}</span>
+            </div>
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Email</span>
+              <span class="mvc-info-val">{{ p.clientEmail }}</span>
+            </div>
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Téléphone</span>
+              <span class="mvc-info-val phone-highlight">{{ p.phoneNumber || 'N/A' }}</span>
+            </div>
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Réservation</span>
+              <span class="mvc-info-val"><code>{{ p.numeroReservation }}</code></span>
+            </div>
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Voyage</span>
+              <span class="mvc-info-val">{{ p.voyageTitre }}</span>
+            </div>
+            <div class="mvc-info-item">
+              <span class="mvc-info-label">Destination</span>
+              <span class="mvc-info-val">{{ p.voyageDestination }}</span>
+            </div>
+            <div class="mvc-info-item" *ngIf="p.referenceTransaction">
+              <span class="mvc-info-label">Réf. Transaction</span>
+              <span class="mvc-info-val"><code>{{ p.referenceTransaction }}</code></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mvc-actions">
+          <button class="btn-valider" (click)="validerPaiement(p)" [disabled]="validatingId === p.id">
+            <span *ngIf="validatingId !== p.id"><i class="bi bi-check-circle-fill me-1"></i> Valider le paiement</span>
+            <span *ngIf="validatingId === p.id"><span class="spinner-border spinner-border-sm me-1"></span>Validation…</span>
+          </button>
+          <button class="btn-rejeter" (click)="openRejectModal(p.id)">
+            <i class="bi bi-x-circle-fill me-1"></i> Rejeter
+          </button>
+          <div class="mvc-status-badge"><span class="status-badge pending">⏳ En attente</span></div>
+        </div>
+      </div>
+
+      <!-- Historique validés/rejetés -->
+      <h3 class="admin-section-title mt-4">Historique des validations</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Réf.</th><th>Provider</th><th>Client</th><th>Téléphone</th><th>Montant</th><th>Statut</th><th>Validé par</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of paiementService.allPaiements() | slice:0:30; trackBy: trackById"
+                [style.opacity]="p.statut === 'EN_ATTENTE' ? 0.5 : 1">
+              <td *ngIf="isMobile(p.modePaiement)">
+                <code>{{ p.numeroPaiement }}</code>
+              </td>
+              <td *ngIf="isMobile(p.modePaiement)">
+                <span class="mm-tag">{{ getProvider(p.modePaiement)?.emoji }} {{ getProvider(p.modePaiement)?.shortLabel }}</span>
+              </td>
+              <td *ngIf="isMobile(p.modePaiement)">{{ p.clientNom }}</td>
+              <td *ngIf="isMobile(p.modePaiement)">{{ p.phoneNumber || '—' }}</td>
+              <td *ngIf="isMobile(p.modePaiement)">{{ p.montant | number:'1.0-0' }} FCFA</td>
+              <td *ngIf="isMobile(p.modePaiement)">
+                <span class="status-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutIcon(p.statut) }} {{ pmtStatutLabel(p.statut) }}</span>
+              </td>
+              <td *ngIf="isMobile(p.modePaiement)">{{ p.validatedBy || '—' }}</td>
+              <td *ngIf="isMobile(p.modePaiement)">{{ p.datePaiement | date:'dd/MM/yy HH:mm' }}</td>
+            </tr>
+            <tr *ngIf="!allMobileMoneyPaiements().length">
+              <td colspan="8" class="empty-row">Aucun paiement Mobile Money</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TOUS LES PAIEMENTS ===== -->
+    <div *ngIf="activeTab === 'paiements'">
+      <div class="admin-page-header">
+        <div><h1>Tous les paiements</h1><p>{{ paiementService.allPaiements().length }} paiement(s) enregistré(s).</p></div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="filter-bar">
+        <div class="filter-search-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text" [(ngModel)]="filterSearch" placeholder="Client, référence, téléphone…">
+        </div>
+        <select class="filter-select" [(ngModel)]="filterMode">
+          <option value="">Tous modes</option>
+          <option value="CARTE_BANCAIRE">💳 Carte</option>
+          <option value="PAYPAL">🔵 PayPal</option>
+          <option value="VIREMENT">🏦 Virement</option>
+          <option value="ORANGE_MONEY">🟠 Orange Money</option>
+          <option value="WAVE">🔵 Wave</option>
+          <option value="FREE_MONEY">🟢 Free Money</option>
+        </select>
+        <select class="filter-select" [(ngModel)]="filterStatut">
+          <option value="">Tous statuts</option>
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="SUCCES">Validé</option>
+          <option value="ECHEC">Échoué</option>
+          <option value="REMBOURSE">Remboursé</option>
+        </select>
+        <button class="filter-reset" *ngIf="filterMode || filterStatut || filterSearch" (click)="filterMode=''; filterStatut=''; filterSearch=''">
+          Effacer
+        </button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Référence</th><th>Mode</th><th>Client</th><th>Contact</th><th>Voyage</th><th>Montant</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredPaiements; trackBy: trackById">
+              <td><code>{{ p.numeroPaiement }}</code><br><small style="color:var(--gray)">{{ p.numeroReservation }}</small></td>
+              <td>
+                <span class="mode-badge" [class.mm-mode]="isMobile(p.modePaiement)">
+                  {{ modeLabel(p.modePaiement) }}
+                </span>
+              </td>
+              <td>{{ p.clientNom }}<br><small>{{ p.clientEmail }}</small></td>
+              <td>{{ p.phoneNumber || p.clientPhone || '—' }}</td>
+              <td>{{ p.voyageTitre }}<br><small>{{ p.voyageDestination }}</small></td>
+              <td class="amount-cell">{{ p.montant | number:'1.0-0' }} {{ isMobile(p.modePaiement) ? 'FCFA' : '€' }}</td>
+              <td><span class="status-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutIcon(p.statut) }} {{ pmtStatutLabel(p.statut) }}</span></td>
+              <td>{{ p.datePaiement | date:'dd/MM/yy HH:mm' }}</td>
+              <td>
+                <div class="ta-actions" *ngIf="p.statut === 'EN_ATTENTE' && isMobile(p.modePaiement)">
+                  <button class="act-btn validate" (click)="validerPaiement(p)" title="Valider"><i class="bi bi-check-lg"></i></button>
+                  <button class="act-btn reject" (click)="openRejectModal(p.id)" title="Rejeter"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <span *ngIf="p.statut !== 'EN_ATTENTE' || !isMobile(p.modePaiement)" style="font-size:12px;color:var(--gray)">—</span>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredPaiements.length"><td colspan="9" class="empty-row">Aucun paiement trouvé</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== RÉSERVATIONS ===== -->
+    <div *ngIf="activeTab === 'reservations'">
+      <div class="admin-page-header">
+        <div><h1>Réservations</h1><p>{{ reservations.length }} réservation(s) au total.</p></div>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-search-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text" [(ngModel)]="filterSearch" placeholder="Client, référence, voyage…">
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Réf.</th><th>Client</th><th>Voyage</th><th>Personnes</th><th>Total</th><th>Payé</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of filteredReservations; trackBy: trackById">
+              <td><code style="cursor:pointer" (click)="openResDetail(r)">{{ r.numeroReservation }}</code></td>
+              <td>{{ r.client.firstName }} {{ r.client.lastName }}<br><small>{{ r.client.email }}</small></td>
+              <td>{{ r.voyage.titre }}<br><small>{{ r.voyage.destination }}</small></td>
+              <td style="text-align:center">{{ r.nombrePersonnes }}</td>
+              <td>{{ r.prixTotal | number:'1.0-0' }} €</td>
+              <td>
+                <span [class.text-teal]="r.montantPaye >= r.prixTotal" [class.text-coral]="r.montantPaye < r.prixTotal">
+                  {{ r.montantPaye | number:'1.0-0' }} €
+                </span>
+              </td>
+              <td><span class="status-badge" [class]="statutClass(r.statut)">{{ statutLabel(r.statut) }}</span></td>
+              <td>
+                <div class="ta-actions">
+                  <button class="act-btn info" (click)="openResDetail(r)" title="Détail"><i class="bi bi-eye"></i></button>
+                  <button class="act-btn validate" *ngIf="r.statut === 'EN_ATTENTE'" (click)="updateResStatut(r.id, 'CONFIRMEE')" title="Confirmer"><i class="bi bi-check-lg"></i></button>
+                  <button class="act-btn reject" *ngIf="r.statut !== 'ANNULEE'" (click)="updateResStatut(r.id, 'ANNULEE')" title="Annuler"><i class="bi bi-x-lg"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredReservations.length"><td colspan="8" class="empty-row">Aucune réservation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== CLIENTS ===== -->
+    <div *ngIf="activeTab === 'clients'">
+      <div class="admin-page-header">
+        <div><h1>Clients</h1><p>{{ clientsList.length }} client(s) enregistré(s).</p></div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Réservations</th><th>Total payé</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let c of clientsList">
+              <td>{{ c.nom }}</td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.phone || '—' }}</td>
+              <td style="text-align:center"><span class="count-badge">{{ c.nbRes }}</span></td>
+              <td>{{ c.totalPaye | number:'1.0-0' }} €</td>
+            </tr>
+            <tr *ngIf="!clientsList.length"><td colspan="5" class="empty-row">Aucun client</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== VOYAGES ===== -->
+    <div *ngIf="activeTab === 'voyages'">
+      <div class="admin-page-header">
+        <div><h1>Gestion des voyages</h1><p>{{ voyages.length }} voyage(s).</p></div>
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="showVoyageForm = true; editingVoyage = null; form = emptyForm()">
+          <i class="bi bi-plus-lg me-1"></i> Nouveau voyage
+        </button>
+      </div>
+
+      <!-- Formulaire voyage -->
+      <div class="admin-form-panel" *ngIf="showVoyageForm">
+        <div class="afp-header">
+          <h3>{{ editingVoyage ? 'Modifier' : 'Créer' }} un voyage</h3>
+          <button (click)="cancelForm()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="afp-body form-voyageur">
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Titre *</label><input type="text" class="form-control" [(ngModel)]="form.titre" placeholder="Nom du voyage"></div>
+            <div class="form-group"><label class="form-label">Catégorie</label><select class="form-control" [(ngModel)]="form.categorie"><option *ngFor="let c of categories" [value]="c">{{ c }}</option></select></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Destination *</label><input type="text" class="form-control" [(ngModel)]="form.destination" placeholder="Ville"></div>
+            <div class="form-group"><label class="form-label">Pays</label><input type="text" class="form-control" [(ngModel)]="form.paysDestination" placeholder="Pays"></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Date départ</label><input type="date" class="form-control" [(ngModel)]="form.dateDepart"></div>
+            <div class="form-group"><label class="form-label">Date retour</label><input type="date" class="form-control" [(ngModel)]="form.dateRetour"></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Prix / personne (€)</label><input type="number" class="form-control" [(ngModel)]="form.prixParPersonne"></div>
+            <div class="form-group"><label class="form-label">Nombre de places</label><input type="number" class="form-control" [(ngModel)]="form.nombrePlacesTotal"></div>
+          </div>
+          <div class="form-group"><label class="form-label">URL image</label><input type="text" class="form-control" [(ngModel)]="form.imageUrl" placeholder="https://…"></div>
+
+          <!-- IMAGE UPLOAD -->
+          <div class="form-group">
+            <label class="form-label">Image du voyage</label>
+
+            <!-- Tabs upload / URL -->
+            <div class="img-mode-tabs">
+              <button type="button" class="img-tab" [class.active]="imageMode === 'upload'" (click)="imageMode = 'upload'">
+                <i class="bi bi-upload me-1"></i> Uploader un fichier
+              </button>
+              <button type="button" class="img-tab" [class.active]="imageMode === 'url'" (click)="imageMode = 'url'">
+                <i class="bi bi-link-45deg me-1"></i> URL externe
+              </button>
+            </div>
+
+            <!-- Zone upload -->
+            <div class="img-upload-zone" *ngIf="imageMode === 'upload'"
+                 [class.has-image]="imagePreview"
+                 (click)="imgInput.click()"
+                 (dragover)="$event.preventDefault()"
+                 (drop)="onDrop($event)">
+              <input #imgInput type="file" accept="image/*" style="display:none" (change)="onImageSelected($event)">
+              <ng-container *ngIf="!imagePreview">
+                <div class="iuz-icon">🖼️</div>
+                <div class="iuz-text">Glisser-déposer ou <strong>cliquer</strong> pour choisir</div>
+                <div class="iuz-hint">JPG, PNG, WebP — max 5 MB</div>
+              </ng-container>
+              <ng-container *ngIf="imagePreview">
+                <img [src]="imagePreview" class="iuz-preview" alt="Aperçu">
+                <button type="button" class="iuz-remove" (click)="$event.stopPropagation(); removeImage()">
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+              </ng-container>
+            </div>
+
+            <!-- Zone URL -->
+            <div *ngIf="imageMode === 'url'" class="img-url-zone">
+              <input type="text" class="form-control" [value]="form.imageUrl || ''"
+                     (input)="onUrlChange($any($event.target).value)"
+                     placeholder="https://images.unsplash.com/…">
+              <div class="iuz-url-preview" *ngIf="imagePreview">
+                <img [src]="imagePreview" alt="Aperçu" (error)="imagePreview = ''">
+              </div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" [(ngModel)]="form.description" rows="4" style="resize:vertical"></textarea></div>
+          <div class="afp-actions">
+            <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="saveVoyage()" [disabled]="savingVoyage">
+              <span *ngIf="!savingVoyage"><i class="bi bi-check-lg me-1"></i>Sauvegarder</span>
+              <span *ngIf="savingVoyage"><span class="spinner-border spinner-border-sm me-1"></span>Sauvegarde…</span>
+            </button>
+            <button class="btn-voyageur btn-voyageur-outline-teal btn-voyageur-md" (click)="cancelForm()">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Voyage</th><th>Destination</th><th>Départ</th><th>Prix</th><th>Places</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let v of voyages; trackBy: trackById">
+              <td><div class="vt-cell"><img [src]="v.imageUrl" class="vt-thumb" [alt]="v.titre"><span>{{ v.titre }}</span></div></td>
+              <td>{{ v.destination }}, {{ v.paysDestination }}</td>
+              <td>{{ v.dateDepart | date:'d MMM yy':'':'fr' }}</td>
+              <td>{{ v.prixParPersonne | number:'1.0-0' }} €</td>
+              <td><span [class.text-coral]="v.nombrePlacesDisponibles <= 2">{{ v.nombrePlacesDisponibles }}/{{ v.nombrePlacesTotal }}</span></td>
+              <td><span class="status-badge confirmed">{{ v.statut }}</span></td>
+              <td>
+                <div class="ta-actions">
+                  <button class="act-btn info" (click)="editVoyage(v)" title="Modifier"><i class="bi bi-pencil-fill"></i></button>
+                  <button class="act-btn reject" (click)="deleteVoyage(v)" title="Supprimer"><i class="bi bi-trash-fill"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ASSURÉS TAB ===== -->
+    <div *ngIf="activeTab === 'assures'" class="assures-tab-wrapper">
+      <app-assures></app-assures>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== MODAL DÉTAIL RÉSERVATION ===== -->
+<div class="modal-overlay" *ngIf="showResDetail" (click)="showResDetail = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()" *ngIf="selectedReservation">
+    <div class="modal-header">
+      <h3>Réservation <code>{{ selectedReservation.numeroReservation }}</code></h3>
+      <button class="modal-close" (click)="showResDetail = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Client -->
+      <div class="modal-section">
+        <div class="ms-title">👤 Client</div>
+        <div class="ms-grid">
+          <div><span>Nom</span><strong>{{ selectedReservation.client.firstName }} {{ selectedReservation.client.lastName }}</strong></div>
+          <div><span>Email</span><strong>{{ selectedReservation.client.email }}</strong></div>
+          <div><span>Téléphone</span><strong>{{ selectedReservation.client.phone || '—' }}</strong></div>
+          <div><span>Passeport</span><strong>{{ selectedReservation.passportNumber || '—' }}</strong></div>
+        </div>
+      </div>
+      <!-- Voyage -->
+      <div class="modal-section">
+        <div class="ms-title">✈️ Voyage</div>
+        <div class="ms-grid">
+          <div><span>Titre</span><strong>{{ selectedReservation.voyage.titre }}</strong></div>
+          <div><span>Destination</span><strong>{{ selectedReservation.voyage.destination }}</strong></div>
+          <div><span>Départ</span><strong>{{ selectedReservation.voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</strong></div>
+          <div><span>Personnes</span><strong>{{ selectedReservation.nombrePersonnes }}</strong></div>
+          <div><span>Chambre</span><strong>{{ selectedReservation.typeHebergement }}</strong></div>
+          <div><span>Notes</span><strong>{{ selectedReservation.notes || '—' }}</strong></div>
+        </div>
+      </div>
+      <!-- Paiements -->
+      <div class="modal-section">
+        <div class="ms-title">💳 Paiements</div>
+        <div *ngFor="let p of getPaiementsForRes(selectedReservation.id)" class="pmt-row">
+          <span>{{ modeLabel(p.modePaiement) }}</span>
+          <span>{{ p.montant | number:'1.0-0' }} €</span>
+          <span class="status-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutLabel(p.statut) }}</span>
+          <span style="font-size:12px;color:var(--gray)">{{ p.datePaiement | date:'dd/MM/yy HH:mm' }}</span>
+        </div>
+        <div *ngIf="!getPaiementsForRes(selectedReservation.id).length" style="color:var(--gray);font-size:14px">Aucun paiement enregistré</div>
+      </div>
+      <!-- Actions statut -->
+      <div class="modal-section">
+        <div class="ms-title">⚙️ Changer le statut</div>
+        <div class="statut-actions">
+          <button class="btn-voyageur btn-voyageur-sm" style="background:#16a34a;color:white" (click)="updateResStatut(selectedReservation.id, 'PAYEE')">✅ Marquer Payée</button>
+          <button class="btn-voyageur btn-voyageur-sm" style="background:var(--teal);color:white" (click)="updateResStatut(selectedReservation.id, 'CONFIRMEE')">Confirmer</button>
+          <button class="btn-voyageur btn-voyageur-sm" style="background:var(--coral);color:white" (click)="updateResStatut(selectedReservation.id, 'ANNULEE')">❌ Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL REJET ===== -->
+<div class="modal-overlay" *ngIf="showRejectModal" (click)="showRejectModal = false">
+  <div class="modal-panel modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>❌ Rejeter le paiement</h3>
+      <button class="modal-close" (click)="showRejectModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Raison du rejet (optionnel)</label>
+        <textarea class="form-control" [(ngModel)]="rejectReason" rows="3" placeholder="Numéro invalide, paiement non reçu…"></textarea>
+      </div>
+      <div class="afp-actions mt-3">
+        <button class="btn-voyageur btn-voyageur-md" style="background:var(--coral);color:white" (click)="confirmerRejet()" [disabled]="rejectingActionId > 0">
+          <span *ngIf="!rejectingActionId">Confirmer le rejet</span>
+          <span *ngIf="rejectingActionId"><span class="spinner-border spinner-border-sm me-1"></span>En cours…</span>
+        </button>
+        <button class="btn-voyageur btn-voyageur-outline-teal btn-voyageur-md" (click)="showRejectModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>

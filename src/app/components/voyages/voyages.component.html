@@ -1,0 +1,134 @@
+<app-navbar></app-navbar>
+
+<!-- Page Hero -->
+<div class="page-hero-voyages">
+  <div class="pv-overlay"></div>
+  <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600&q=80" alt="Voyages" class="pv-bg">
+  <div class="section-wrapper pv-content">
+    <span class="section-eyebrow" style="color:var(--gold-light);margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <span style="display:block;width:30px;height:2px;background:var(--gold)"></span>
+      Catalogue complet
+    </span>
+    <h1>Nos <em>voyages</em></h1>
+    <p>{{ filteredVoyages.length }} voyage{{ filteredVoyages.length > 1 ? 's' : '' }} disponible{{ filteredVoyages.length > 1 ? 's' : '' }}</p>
+  </div>
+</div>
+
+<!-- Search + Filters Bar -->
+<div class="filters-bar">
+  <div class="section-wrapper">
+    <div class="filters-inner">
+      <!-- Search Input -->
+      <div class="filter-search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Destination, pays, titre…"
+               [(ngModel)]="searchParams.destination"
+               (ngModelChange)="applyFilters()">
+        <button *ngIf="searchParams.destination" (click)="searchParams.destination=''; applyFilters()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+
+      <!-- Category Pills YVAS -->
+      <div class="category-pills">
+        <button *ngFor="let cat of categories"
+                class="cat-pill"
+                [class.active]="selectedCategory === cat.value"
+                [style.--cat-color]="cat.color"
+                (click)="onCategoryChange(cat.value)">
+          <span class="cat-icon">{{ cat.icon }}</span>
+          <span class="cat-label">{{ cat.label }}</span>
+        </button>
+      </div>
+
+      <!-- Sort + View -->
+      <div class="filters-right">
+        <div class="filter-field">
+          <label>Budget max</label>
+          <select [(ngModel)]="searchParams.prixMax" (ngModelChange)="applyFilters()">
+            <option [ngValue]="undefined">Tous</option>
+            <option [ngValue]="1000000">≤ 1 M FCFA</option>
+            <option [ngValue]="3000000">≤ 3 M FCFA</option>
+            <option [ngValue]="5000000">≤ 5 M FCFA</option>
+            <option [ngValue]="7000000">≤ 7 M FCFA</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Trier par</label>
+          <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
+            <option value="date">Date départ</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
+            <option value="places">Disponibilité</option>
+            <option value="duration">Durée</option>
+          </select>
+        </div>
+        <div class="view-toggle">
+          <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" title="Vue grille">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </button>
+          <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="Vue liste">
+            <i class="bi bi-list-ul"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter tags -->
+    <div class="active-filters" *ngIf="hasActiveFilters">
+      <span class="filter-tag-label">Filtres actifs:</span>
+      <span class="filter-tag" *ngIf="searchParams.destination">
+        📍 {{ searchParams.destination }}
+        <button (click)="searchParams.destination=''; applyFilters()"><i class="bi bi-x"></i></button>
+      </span>
+      <span class="filter-tag" *ngIf="searchParams.prixMax">
+        💰 ≤ {{ searchParams.prixMax | number:'1.0-0' }}€
+        <button (click)="searchParams.prixMax=undefined; applyFilters()"><i class="bi bi-x"></i></button>
+      </span>
+      <span class="filter-tag" *ngIf="selectedCategory">
+        🏷️ {{ selectedCategory }}
+        <button (click)="selectedCategory=''; applyFilters()"><i class="bi bi-x"></i></button>
+      </span>
+      <button class="reset-filters" (click)="resetFilters()">Tout effacer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="voyages-results">
+  <div class="section-wrapper">
+
+    <!-- Loading -->
+    <div class="loading-page" *ngIf="loading">
+      <div class="spinner-voyageur"></div>
+      <span>Chargement des voyages…</span>
+    </div>
+
+    <!-- No results -->
+    <div class="no-results" *ngIf="!loading && filteredVoyages.length === 0">
+      <div class="no-results-icon">🔍</div>
+      <h3>Aucun voyage trouvé</h3>
+      <p>Essayez de modifier vos critères de recherche.</p>
+      <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="resetFilters()">
+        Réinitialiser les filtres
+      </button>
+    </div>
+
+    <!-- Grid -->
+    <div [class]="viewMode === 'grid' ? 'grid-3' : 'list-view'" *ngIf="!loading && filteredVoyages.length > 0">
+      <app-voyage-card
+        *ngFor="let voyage of filteredVoyages; trackBy: trackById"
+        [voyage]="voyage"
+        [class.list-card]="viewMode === 'list'">
+      </app-voyage-card>
+    </div>
+
+    <!-- Count -->
+    <div class="results-count" *ngIf="!loading && filteredVoyages.length > 0">
+      {{ filteredVoyages.length }} résultat{{ filteredVoyages.length > 1 ? 's' : '' }}
+      <span *ngIf="hasActiveFilters"> pour vos critères</span>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
