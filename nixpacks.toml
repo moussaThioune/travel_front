@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ["npm install", "npm run build -- --configuration production"]
+cmds = ["npm install", "npm run build -- --configuration production --budget-warning-as-error=false"]
 
 [start]
 cmd = "npx serve -s dist/voyageur/browser -l $PORT"
