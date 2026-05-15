@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5000/api',
+  production: true,
+  apiUrl: 'https://travel-production-c3e3.up.railway.app/api',
   appName: 'Voyageur',
   version: '1.0.0'
 };
