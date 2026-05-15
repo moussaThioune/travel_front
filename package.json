@@ -4,13 +4,16 @@
   "description": "Application de réservation de voyages - Voyageur Travel Agency",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --open",
-    "build": "ng build",
     "build:prod": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "serve:prod": "serve -s dist/voyageur/browser",
+    "start": "serve -s dist/voyageur/browser -l $PORT",
+    "dev": "ng serve --open",
+    "build": "ng build --configuration production"
   },
+  
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.3.0",
