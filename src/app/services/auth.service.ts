@@ -10,7 +10,7 @@ import { NotificationService } from './notification.service';
 export class AuthService {
   private readonly SESSION_KEY = 'vgr_session';
   private readonly PENDING_BOOKING_KEY = 'vgr_pending_booking';
-  private readonly API = 'http://localhost:5000/api/auth';
+  private readonly API = 'https://travel-production-c3e3.up.railway.app/api/auth';
 
   private _user = signal<AuthResponse | null>(null);
   readonly currentUser  = this._user.asReadonly();
