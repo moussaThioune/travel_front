@@ -11,7 +11,7 @@ export interface ImportResult {
 
 @Injectable({ providedIn: 'root' })
 export class ImportService {
-  private readonly url = 'http://localhost:5000/api/import';
+  private readonly url = 'https://travel-production-c3e3.up.railway.app/api/import';
   constructor(private http: HttpClient) {}
 
   importAssuresExcel(file: File): Observable<ImportResult> {

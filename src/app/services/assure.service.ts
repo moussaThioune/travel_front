@@ -5,7 +5,7 @@ import { Assure, AssureRequest, AssureStats, NotifManuelleRequest } from '../mod
 
 @Injectable({ providedIn: 'root' })
 export class AssureService {
-  private readonly url = 'http://localhost:5000/api/assures';
+  private readonly url = 'https://travel-production-c3e3.up.railway.app/api/assures';
 
   constructor(private http: HttpClient) {}
 
