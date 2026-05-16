@@ -48,9 +48,9 @@ import { Component } from '@angular/core';
         <h4>Contact</h4>
         <ul class="contact-list">
           <li><i class="bi bi-geo-alt-fill"></i><span>rue Baye Seydi Thiaw<br>Yoff, Dakar</span></li>
-          <li><i class="bi bi-telephone-fill"></i><span>+221 78 143 44</span></li>
+          <li><i class="bi bi-telephone-fill"></i><span>+221 78 143 44 44</span></li>
           <li><i class="bi bi-envelope-fill"></i><span>yvasvoyage&#64;gmail.com</span></li>
-          <li><i class="bi bi-clock-fill"></i><span>Lun–Ven 9h–19h<br>Samedi 10h–17h</span></li>
+          <li><i class="bi bi-clock-fill"></i><span>Lun–Ven 9h–21h<br>Samedi 10h–21h</span></li>
         </ul>
 
         <!-- Newsletter -->

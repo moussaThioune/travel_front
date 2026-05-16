@@ -71,22 +71,21 @@ nav {
 .plane-emoji {
   font-size: 100px;
   display: block;
-  transform: scale(3);  /* ← multiplie la taille par 3 */
+  transform: scale(3);
   transform-origin: left center;
   animation: planeFly 3s ease-in-out infinite;
 }
 .yvas-logo-img {
-  height: 100px;
-  width: 100px;
+  height: 110px;
+  width: 110px;
   object-fit: contain;
   
-  /* Option A : logo en blanc pur */
+
   filter: brightness(0) invert(1);
 
-  /* Option B : conserver les couleurs mais supprimer fond sombre */
   mix-blend-mode: screen;
 
-  /* Option C : juste éclaircir */
+ 
   filter: brightness(1.4) contrast(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.4));
 }
   .logo-icon { font-size: 20px; }
