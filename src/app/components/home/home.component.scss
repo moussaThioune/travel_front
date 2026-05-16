@@ -26,15 +26,9 @@
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(9, 35, 35, 0.88) 0%,
-    rgba(15, 69, 69, 0.78) 50%,
-    rgba(9, 35, 35, 0.82) 100%
-  );
+  background: rgba(255, 255, 255, 0.85);
   z-index: 1;
 }
-
 .hero-content {
   position: relative;
   z-index: 2;
