@@ -13,7 +13,7 @@
       <span class="dot-pulse"></span>
       Voyages d'exception · Disponibles maintenant
     </span>
-    <h1 style="color: black;">Vivez des aventures<br><em>inoubliables</em></h1>
+    <h1>Vivez des aventures<br><em>inoubliables</em></h1>
     <p class="hero-subtitle">
       Réservez votre voyage de rêve en quelques minutes. Des destinations triées sur le volet,
       un service 5 étoiles, et des souvenirs pour la vie.
@@ -74,23 +74,13 @@
             <input type="text" [(ngModel)]="searchParams.destination" placeholder="Bali, Maroc, Japon...">
           </div>
         </div>
-<div class="search-field">
-  <label>Date de départ</label>
-  <div class="search-input-wrap">
-    <i class="bi bi-calendar3"></i>
-    <input type="date" [(ngModel)]="searchParams.dateDepart">
-  </div>
-</div>
-
-<!-- ← AJOUTER ICI -->
-<div class="search-field">
-  <label>Date de retour</label>
-  <div class="search-input-wrap">
-    <i class="bi bi-calendar3-fill"></i>
-    <input type="date" [(ngModel)]="searchParams.dateRetour"
-           [min]="searchParams.dateDepart">
-  </div>
-</div>
+        <div class="search-field">
+          <label>Date de départ</label>
+          <div class="search-input-wrap">
+            <i class="bi bi-calendar3"></i>
+            <input type="date" [(ngModel)]="searchParams.dateDepart">
+          </div>
+        </div>
         <div class="search-field">
           <label>Personnes</label>
           <div class="search-input-wrap">
