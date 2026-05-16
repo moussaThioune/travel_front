@@ -48,11 +48,13 @@ nav {
   transition: opacity 0.3s;
   &:hover { opacity: 0.85; }
 
-  .yvas-logo {
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,.25));
-    // Sur fond sombre de la navbar, inverser le texte pour visibilité
-    text { fill: white; }
-    path[stroke="#1a4b8c"] { stroke: white; }
+  .yvas-logo-img {
+    height: 72px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,.20));
+    transition: transform 0.25s;
+    &:hover { transform: scale(1.04); }
   }
   .logo-icon { font-size: 20px; }
   em { color: var(--gold); font-style: normal; }
