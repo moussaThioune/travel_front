@@ -4,28 +4,45 @@
     <!-- Logo -->
     <a class="nav-logo" routerLink="/" (click)="closeMenu()">
       <img src="assets/images/logo-yvas.png" alt="YVAS" class="yvas-logo-img">
- 
-        <img src="assets/images/avion.png" 
-       alt="avion" class="plane-img">
+      <img src="assets/images/avion.png" alt="avion" class="plane-img">
     </a>
 
     <!-- Desktop + Mobile links -->
     <div class="nav-links" [class.open]="isMenuOpen">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
-      <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()">Voyages</a>
-      <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()">Destinations</a>
-      <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">Mes Réservations</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">{{ 'nav.home' | translate }}</a>
+      <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.voyages' | translate }}</a>
+      <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.destinations' | translate }}</a>
+      <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.myBookings' | translate }}</a>
       <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">
-        <i class="bi bi-gear-fill me-1"></i>Admin
+        <i class="bi bi-gear-fill me-1"></i>{{ 'nav.admin' | translate }}
       </a>
     </div>
 
     <!-- Actions -->
     <div class="nav-actions">
 
+      <!-- Language switcher -->
+      <div class="lang-wrap">
+        <button class="lang-btn" (click)="toggleLangMenu()" [title]="langService.currentLang.label">
+          <span class="lang-flag">{{ langService.currentLang.flag }}</span>
+          <span class="lang-code">{{ langService.current() | uppercase }}</span>
+          <i class="bi bi-chevron-down lang-chevron"></i>
+        </button>
+        <div class="lang-dropdown" *ngIf="showLangMenu">
+          <button *ngFor="let l of langService.langs"
+                  class="lang-option"
+                  [class.active]="langService.current() === l.code"
+                  (click)="selectLang(l.code)">
+            <span>{{ l.flag }}</span>
+            <span>{{ l.label }}</span>
+            <i class="bi bi-check2" *ngIf="langService.current() === l.code"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- Notification Bell (logged in) -->
       <div class="notif-btn-wrap" *ngIf="authService.isLoggedIn()">
-        <button class="notif-btn" (click)="toggleNotif()" [class.has-notif]="unreadCount > 0" title="Notifications">
+        <button class="notif-btn" (click)="toggleNotif()" [class.has-notif]="unreadCount > 0" [title]="'nav.notifications' | translate">
           <i class="bi bi-bell-fill"></i>
           <span class="notif-dot" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
@@ -33,13 +50,13 @@
         <!-- Notification Dropdown -->
         <div class="notif-panel" *ngIf="showNotifPanel">
           <div class="notif-header">
-            <span class="notif-panel-title">Notifications</span>
-            <button class="notif-mark-all" (click)="notifService.markAllRead()">Tout lire</button>
+            <span class="notif-panel-title">{{ 'nav.notifications' | translate }}</span>
+            <button class="notif-mark-all" (click)="notifService.markAllRead()">{{ 'nav.markAllRead' | translate }}</button>
           </div>
           <div class="notif-list">
             <div class="notif-empty" *ngIf="!notifications.length">
               <i class="bi bi-bell-slash"></i>
-              <p>Aucune notification</p>
+              <p>{{ 'nav.noNotif' | translate }}</p>
             </div>
             <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="notifService.markRead(n.id)">
               <span class="notif-icon">{{ n.icon }}</span>
@@ -51,15 +68,15 @@
             </div>
           </div>
           <div class="notif-footer">
-            <a routerLink="/mes-reservations" (click)="closeDropdowns()">Voir mes réservations →</a>
+            <a routerLink="/mes-reservations" (click)="closeDropdowns()">{{ 'nav.viewReservations' | translate }}</a>
           </div>
         </div>
       </div>
 
       <!-- Auth buttons (not logged in) -->
       <ng-container *ngIf="!authService.isLoggedIn()">
-        <a routerLink="/connexion" class="btn-login-nav">Se connecter</a>
-        <a routerLink="/inscription" class="btn-voyageur btn-voyageur-gold btn-voyageur-sm">S'inscrire</a>
+        <a routerLink="/connexion" class="btn-login-nav">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/inscription" class="btn-voyageur btn-voyageur-gold btn-voyageur-sm">{{ 'nav.register' | translate }}</a>
       </ng-container>
 
       <!-- User avatar (logged in) -->
@@ -78,21 +95,21 @@
           </div>
           <div class="user-dropdown-links">
             <a routerLink="/mes-reservations" (click)="closeDropdowns()">
-              <i class="bi bi-calendar-check"></i> Mes réservations
+              <i class="bi bi-calendar-check"></i> {{ 'nav.myReservations' | translate }}
               <span class="ud-count">{{ reservationService.myReservations().length }}</span>
             </a>
             <a routerLink="/profil" (click)="closeDropdowns()">
-              <i class="bi bi-person"></i> Mon profil
+              <i class="bi bi-person"></i> {{ 'nav.profile' | translate }}
             </a>
             <a *ngIf="authService.isAdmin()" routerLink="/admin" (click)="closeDropdowns()">
-              <i class="bi bi-speedometer2"></i> Administration
+              <i class="bi bi-speedometer2"></i> {{ 'nav.admin' | translate }}
             </a>
             <a *ngIf="authService.isAdmin()" routerLink="/assures" (click)="closeDropdowns()">
-              <i class="bi bi-car-front"></i> Suivi Assurés
+              <i class="bi bi-car-front"></i> {{ 'nav.insuredTracking' | translate }}
             </a>
           </div>
           <button class="ud-logout" (click)="logout()">
-            <i class="bi bi-box-arrow-right"></i> Se déconnecter
+            <i class="bi bi-box-arrow-right"></i> {{ 'nav.logout' | translate }}
           </button>
         </div>
       </div>

@@ -11,22 +11,19 @@
   <div class="hero-content section-wrapper">
     <span class="hero-eyebrow">
       <span class="dot-pulse"></span>
-      Voyages d'exception · Disponibles maintenant
+      {{ 'home.eyebrow' | translate }}
     </span>
-    <h1>Vivez des aventures<br><em>inoubliables</em></h1>
-    <p class="hero-subtitle">
-      Réservez votre voyage de rêve en quelques minutes. Des destinations triées sur le volet,
-      un service 5 étoiles, et des souvenirs pour la vie.
-    </p>
+    <h1>{{ 'home.heroTitle' | translate }}<br><em>{{ 'home.heroTitleEm' | translate }}</em></h1>
+    <p class="hero-subtitle">{{ 'home.heroSubtitle' | translate }}</p>
     <div class="hero-ctas">
       <button class="btn-voyageur btn-voyageur-gold btn-voyageur-lg" routerLink="/voyages">
-        Découvrir les voyages
+        {{ 'home.discoverBtn' | translate }}
         <i class="bi bi-arrow-right"></i>
       </button>
       <button class="btn-voyageur btn-voyageur-outline btn-voyageur-lg"
               *ngIf="!authService.isLoggedIn()"
               routerLink="/inscription">
-        Créer un compte gratuitement
+        {{ 'home.registerBtn' | translate }}
       </button>
     </div>
   </div>
@@ -34,23 +31,22 @@
   <div class="hero-stats section-wrapper">
     <div class="hero-stat">
       <strong>12K<span>+</span></strong>
-      <span>Voyageurs heureux</span>
+      <span>{{ 'home.statTravelers' | translate }}</span>
     </div>
     <div class="hero-stat">
       <strong>85</strong>
-      <span>Destinations</span>
+      <span>{{ 'home.statDestinations' | translate }}</span>
     </div>
     <div class="hero-stat">
       <strong>4.9<span>★</span></strong>
-      <span>Note moyenne</span>
+      <span>{{ 'home.statRating' | translate }}</span>
     </div>
     <div class="hero-stat">
       <strong>100<span>%</span></strong>
-      <span>Sécurisé</span>
+      <span>{{ 'home.statSecure' | translate }}</span>
     </div>
   </div>
 
-  <!-- Slide indicators -->
   <div class="hero-indicators">
     <button *ngFor="let img of heroImages; let i = index"
             [class.active]="i === currentHeroImg"
@@ -64,60 +60,57 @@
   <div class="section-wrapper">
     <div class="search-card">
       <div class="search-card-label">
-        <i class="bi bi-search"></i> Trouver votre voyage idéal
+        <i class="bi bi-search"></i> {{ 'home.search.label' | translate }}
       </div>
       <div class="search-form">
         <div class="search-field">
-          <label>Destination</label>
+          <label>{{ 'home.search.destination' | translate }}</label>
           <div class="search-input-wrap">
             <i class="bi bi-geo-alt-fill"></i>
-            <input type="text" [(ngModel)]="searchParams.destination" placeholder="Bali, Maroc, Japon...">
+            <input type="text" [(ngModel)]="searchParams.destination" [placeholder]="'home.search.destPlaceholder' | translate">
           </div>
         </div>
-<div class="search-field">
-  <label>Date de départ</label>
-  <div class="search-input-wrap">
-    <i class="bi bi-calendar3"></i>
-    <input type="date" [(ngModel)]="searchParams.dateDepart">
-  </div>
-</div>
-
-<!-- ← AJOUTER ICI -->
-<div class="search-field">
-  <label>Date de retour</label>
-  <div class="search-input-wrap">
-    <i class="bi bi-calendar3-fill"></i>
-    <input type="date" [(ngModel)]="searchParams.dateRetour"
-           [min]="searchParams.dateDepart">
-  </div>
-</div>
         <div class="search-field">
-          <label>Personnes</label>
+          <label>{{ 'home.search.departDate' | translate }}</label>
+          <div class="search-input-wrap">
+            <i class="bi bi-calendar3"></i>
+            <input type="date" [(ngModel)]="searchParams.dateDepart">
+          </div>
+        </div>
+        <div class="search-field">
+          <label>{{ 'home.search.returnDate' | translate }}</label>
+          <div class="search-input-wrap">
+            <i class="bi bi-calendar3-fill"></i>
+            <input type="date" [(ngModel)]="searchParams.dateRetour" [min]="searchParams.dateDepart">
+          </div>
+        </div>
+        <div class="search-field">
+          <label>{{ 'home.search.persons' | translate }}</label>
           <div class="search-input-wrap">
             <i class="bi bi-people-fill"></i>
             <select [(ngModel)]="searchParams.places">
-              <option [ngValue]="undefined">Toutes</option>
-              <option [ngValue]="1">1 personne</option>
-              <option [ngValue]="2">2 personnes</option>
-              <option [ngValue]="4">4+ personnes</option>
+              <option [ngValue]="undefined">{{ 'home.search.all' | translate }}</option>
+              <option [ngValue]="1">{{ 'home.search.person1' | translate }}</option>
+              <option [ngValue]="2">{{ 'home.search.persons2' | translate }}</option>
+              <option [ngValue]="4">{{ 'home.search.persons4' | translate }}</option>
             </select>
           </div>
         </div>
         <div class="search-field">
-          <label>Budget max</label>
+          <label>{{ 'home.search.budget' | translate }}</label>
           <div class="search-input-wrap">
             <i class="bi bi-cash-coin"></i>
             <select [(ngModel)]="searchParams.prixMax">
-              <option [ngValue]="undefined">Tous</option>
-              <option [ngValue]="1500">≤ 1 500FCFA</option>
-              <option [ngValue]="2500">≤ 2 500FCFA</option>
-              <option [ngValue]="4000">≤ 4 000FCFA</option>
+              <option [ngValue]="undefined">{{ 'home.search.allBudget' | translate }}</option>
+              <option [ngValue]="1500">≤ 1 500 FCFA</option>
+              <option [ngValue]="2500">≤ 2 500 FCFA</option>
+              <option [ngValue]="4000">≤ 4 000 FCFA</option>
             </select>
           </div>
         </div>
         <button class="btn-voyageur btn-voyageur-teal btn-search" (click)="doSearch()">
           <i class="bi bi-search"></i>
-          <span>Chercher</span>
+          <span>{{ 'home.search.searchBtn' | translate }}</span>
         </button>
       </div>
     </div>
@@ -128,39 +121,41 @@
 <section class="how-section">
   <div class="section-wrapper">
     <div class="section-header centered">
-      <div class="section-eyebrow centered">Processus simple</div>
-      <h2 class="section-title">De l'inscription à votre <em>voyage</em> en 4 étapes</h2>
-      <p class="section-desc centered">Un parcours fluide et sécurisé pour réserver votre aventure.</p>
+      <div class="section-eyebrow centered">{{ 'home.howItWorks.eyebrow' | translate }}</div>
+      <h2 class="section-title">
+        {{ 'home.howItWorks.title' | translate }} <em>{{ 'home.howItWorks.titleEm' | translate }}</em> {{ 'home.howItWorks.titleSuffix' | translate }}
+      </h2>
+      <p class="section-desc centered">{{ 'home.howItWorks.desc' | translate }}</p>
     </div>
     <div class="steps-row">
       <div class="step-item">
         <div class="step-num">01</div>
         <div class="step-icon-wrap"><span>👤</span></div>
-        <h3>Créez votre compte</h3>
-        <p>Inscription gratuite en 2 minutes. Accédez à votre espace personnel sécurisé.</p>
-        <a routerLink="/inscription" class="step-action">S'inscrire →</a>
+        <h3>{{ 'home.howItWorks.step1Title' | translate }}</h3>
+        <p>{{ 'home.howItWorks.step1Desc' | translate }}</p>
+        <a routerLink="/inscription" class="step-action">{{ 'home.howItWorks.step1Action' | translate }}</a>
       </div>
       <div class="step-connector"><i class="bi bi-chevron-right"></i></div>
       <div class="step-item">
         <div class="step-num">02</div>
         <div class="step-icon-wrap"><span>✈️</span></div>
-        <h3>Choisissez votre voyage</h3>
-        <p>Parcourez nos destinations et sélectionnez le voyage qui vous fait rêver.</p>
-        <a routerLink="/voyages" class="step-action">Explorer →</a>
+        <h3>{{ 'home.howItWorks.step2Title' | translate }}</h3>
+        <p>{{ 'home.howItWorks.step2Desc' | translate }}</p>
+        <a routerLink="/voyages" class="step-action">{{ 'home.howItWorks.step2Action' | translate }}</a>
       </div>
       <div class="step-connector"><i class="bi bi-chevron-right"></i></div>
       <div class="step-item">
         <div class="step-num">03</div>
         <div class="step-icon-wrap"><span>💳</span></div>
-        <h3>Réservez & payez</h3>
-        <p>Confirmez vos voyageurs, choisissez votre paiement et validez en sécurité.</p>
+        <h3>{{ 'home.howItWorks.step3Title' | translate }}</h3>
+        <p>{{ 'home.howItWorks.step3Desc' | translate }}</p>
       </div>
       <div class="step-connector"><i class="bi bi-chevron-right"></i></div>
       <div class="step-item">
         <div class="step-num">04</div>
         <div class="step-icon-wrap"><span>📍</span></div>
-        <h3>Suivez en temps réel</h3>
-        <p>Recevez des notifications et suivez l'évolution de votre réservation.</p>
+        <h3>{{ 'home.howItWorks.step4Title' | translate }}</h3>
+        <p>{{ 'home.howItWorks.step4Desc' | translate }}</p>
       </div>
     </div>
   </div>
@@ -170,9 +165,9 @@
 <section class="destinations-section">
   <div class="section-wrapper">
     <div class="section-header">
-      <div class="section-eyebrow">Explorez le monde</div>
-      <h2 class="section-title">Destinations <em>populaires</em></h2>
-      <p class="section-desc">Nos destinations les plus demandées par nos voyageurs.</p>
+      <div class="section-eyebrow">{{ 'home.destinations.eyebrow' | translate }}</div>
+      <h2 class="section-title">{{ 'home.destinations.title' | translate }} <em>{{ 'home.destinations.titleEm' | translate }}</em></h2>
+      <p class="section-desc">{{ 'home.destinations.desc' | translate }}</p>
     </div>
     <div class="destinations-mosaic">
       <div class="dest-main" (click)="filterByDestination(destinations[0]?.name || '')">
@@ -181,7 +176,7 @@
         <div class="dest-info">
           <span class="dest-tag" *ngIf="destinations[0]?.tag">{{ destinations[0].tag }}</span>
           <h3>{{ destinations[0]?.name }}, {{ destinations[0]?.country }}</h3>
-          <p>À partir de <strong>{{ destinations[0]?.minPrice | number:'1.0-0' }} CFA</strong>/pers.</p>
+          <p>{{ 'home.destinations.from' | translate }} <strong>{{ destinations[0]?.minPrice | number:'1.0-0' }} CFA</strong>{{ 'home.destinations.perPerson' | translate }}</p>
         </div>
       </div>
       <div class="dest-grid">
@@ -192,7 +187,7 @@
           <div class="dest-info">
             <span class="dest-tag" *ngIf="dest.tag">{{ dest.tag }}</span>
             <h3>{{ dest.name }}</h3>
-            <p>Dès <strong>{{ dest.minPrice | number:'1.0-0' }} CFA</strong></p>
+            <p>{{ 'home.destinations.from2' | translate }} <strong>{{ dest.minPrice | number:'1.0-0' }} CFA</strong></p>
           </div>
         </div>
       </div>
@@ -205,11 +200,11 @@
   <div class="section-wrapper">
     <div class="section-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px">
       <div>
-        <div class="section-eyebrow">Sélection</div>
-        <h2 class="section-title">Voyages en <em>vedette</em></h2>
+        <div class="section-eyebrow">{{ 'home.featured.eyebrow' | translate }}</div>
+        <h2 class="section-title">{{ 'home.featured.title' | translate }} <em>{{ 'home.featured.titleEm' | translate }}</em></h2>
       </div>
       <a routerLink="/voyages" class="btn-voyageur btn-voyageur-outline-teal btn-voyageur-md">
-        Voir tous les voyages <i class="bi bi-arrow-right ms-1"></i>
+        {{ 'home.featured.viewAll' | translate }} <i class="bi bi-arrow-right ms-1"></i>
       </a>
     </div>
     <div class="grid-3">
@@ -222,8 +217,8 @@
 <section class="testimonials-section">
   <div class="section-wrapper">
     <div class="section-header centered">
-      <div class="section-eyebrow centered">Avis clients</div>
-      <h2 class="section-title">Ce que disent nos <em>voyageurs</em></h2>
+      <div class="section-eyebrow centered">{{ 'home.testimonials.eyebrow' | translate }}</div>
+      <h2 class="section-title">{{ 'home.testimonials.title' | translate }} <em>{{ 'home.testimonials.titleEm' | translate }}</em></h2>
     </div>
     <div class="grid-3">
       <div class="testimonial-card" *ngFor="let t of testimonials; let i = index" [style.animationDelay]="(i * 0.15) + 's'">
@@ -249,11 +244,11 @@
   <div class="cta-bg"></div>
   <div class="section-wrapper cta-content">
     <div class="cta-text">
-      <h2>Prêt pour l'aventure? 🌍</h2>
-      <p>Rejoignez 12 000+ voyageurs et bénéficiez de 10% sur votre premier voyage.</p>
+      <h2>{{ 'home.cta.title' | translate }}</h2>
+      <p>{{ 'home.cta.desc' | translate }}</p>
     </div>
     <a routerLink="/inscription" class="btn-voyageur btn-voyageur-white btn-voyageur-lg">
-      Créer mon compte gratuitement
+      {{ 'home.cta.btn' | translate }}
       <i class="bi bi-arrow-right-circle"></i>
     </a>
   </div>

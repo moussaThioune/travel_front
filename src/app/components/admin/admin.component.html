@@ -411,13 +411,13 @@
     <div *ngIf="activeTab === 'voyages'">
       <div class="admin-page-header">
         <div><h1>Gestion des voyages</h1><p>{{ voyages.length }} voyage(s).</p></div>
-        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="showVoyageForm = true; editingVoyage = null; form = emptyForm()">
+        <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="openCreateForm()">
           <i class="bi bi-plus-lg me-1"></i> Nouveau voyage
         </button>
       </div>
 
       <!-- Formulaire voyage -->
-      <div class="admin-form-panel" *ngIf="showVoyageForm">
+      <div class="admin-form-panel" *ngIf="showVoyageForm" #voyageFormRef>
         <div class="afp-header">
           <h3>{{ editingVoyage ? 'Modifier' : 'Créer' }} un voyage</h3>
           <button (click)="cancelForm()"><i class="bi bi-x-lg"></i></button>

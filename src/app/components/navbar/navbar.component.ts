@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { ReservationService } from '../../services/reservation.service';
+import { LanguageService, Lang } from '../../services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,11 +15,13 @@ export class NavbarComponent implements OnInit {
   isMenuOpen = false;
   showNotifPanel = false;
   showUserMenu = false;
+  showLangMenu = false;
 
   constructor(
     public authService: AuthService,
     public notifService: NotificationService,
     public reservationService: ReservationService,
+    public langService: LanguageService,
     private router: Router
   ) {}
 
@@ -43,6 +46,7 @@ export class NavbarComponent implements OnInit {
   toggleNotif(): void {
     this.showNotifPanel = !this.showNotifPanel;
     this.showUserMenu = false;
+    this.showLangMenu = false;
     if (this.showNotifPanel) {
       this.notifService.markAllRead();
     }
@@ -51,6 +55,18 @@ export class NavbarComponent implements OnInit {
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
     this.showNotifPanel = false;
+    this.showLangMenu = false;
+  }
+
+  toggleLangMenu(): void {
+    this.showLangMenu = !this.showLangMenu;
+    this.showNotifPanel = false;
+    this.showUserMenu = false;
+  }
+
+  selectLang(code: Lang): void {
+    this.langService.setLang(code);
+    this.showLangMenu = false;
   }
 
   toggleMenu(): void {
@@ -64,6 +80,7 @@ export class NavbarComponent implements OnInit {
   closeDropdowns(): void {
     this.showNotifPanel = false;
     this.showUserMenu = false;
+    this.showLangMenu = false;
   }
 
   get unreadCount(): number {

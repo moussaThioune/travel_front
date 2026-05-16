@@ -22,8 +22,8 @@
 
     <!-- Meta -->
     <div class="vc-meta">
-      <span><i class="bi bi-calendar3"></i> {{ voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</span>
-      <span><i class="bi bi-clock"></i> {{ voyage.dureeJours }} jours</span>
+      <span><i class="bi bi-calendar3"></i> {{ voyage.dateDepart | date:'d MMM yyyy' }}</span>
+      <span><i class="bi bi-clock"></i> {{ voyage.dureeJours }} {{ 'card.days' | translate }}</span>
       <span *ngIf="voyage.hotel">
         <i class="bi bi-building"></i>
         <span class="stars-inline">
@@ -35,7 +35,7 @@
     <!-- Availability -->
     <div class="vc-avail">
       <div class="vc-avail-header">
-        <span>Disponibilité</span>
+        <span>{{ 'card.availability' | translate }}</span>
         <span class="vc-avail-label" [class]="'avail-text-' + availClass">{{ availLabel }}</span>
       </div>
       <div class="avail-track">
@@ -46,14 +46,14 @@
     <!-- Footer -->
     <div class="vc-footer">
       <div class="vc-price">
-        <div class="vc-price-from">À partir de</div>
+        <div class="vc-price-from">{{ 'card.from' | translate }}</div>
         <div class="vc-price-amount">
           {{ formatPrice(voyage.prixParPersonne) }} <small>FCFA</small>
         </div>
-        <div class="vc-price-per">/personne</div>
+        <div class="vc-price-per">{{ 'card.perPerson' | translate }}</div>
       </div>
       <button class="btn-reserve" (click)="onReserve($event)">
-        Réserver <i class="bi bi-arrow-right ms-1"></i>
+        {{ 'card.reserve' | translate }} <i class="bi bi-arrow-right ms-1"></i>
       </button>
     </div>
   </div>

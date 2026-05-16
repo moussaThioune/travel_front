@@ -7,10 +7,10 @@
   <div class="section-wrapper pv-content">
     <span class="section-eyebrow" style="color:var(--gold-light);margin-bottom:14px;display:flex;align-items:center;gap:10px">
       <span style="display:block;width:30px;height:2px;background:var(--gold)"></span>
-      Catalogue complet
+      {{ 'voyages.catalog' | translate }}
     </span>
-    <h1>Nos <em>voyages</em></h1>
-    <p>{{ filteredVoyages.length }} voyage{{ filteredVoyages.length > 1 ? 's' : '' }} disponible{{ filteredVoyages.length > 1 ? 's' : '' }}</p>
+    <h1>{{ 'voyages.title' | translate }} <em>{{ 'voyages.titleEm' | translate }}</em></h1>
+    <p>{{ filteredVoyages.length }} {{ filteredVoyages.length > 1 ? ('voyages.availablePlural' | translate) : ('voyages.available' | translate) }}</p>
   </div>
 </div>
 
@@ -21,7 +21,7 @@
       <!-- Search Input -->
       <div class="filter-search">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Destination, pays, titre…"
+        <input type="text" [placeholder]="'voyages.searchPlaceholder' | translate"
                [(ngModel)]="searchParams.destination"
                (ngModelChange)="applyFilters()">
         <button *ngIf="searchParams.destination" (click)="searchParams.destination=''; applyFilters()">
@@ -29,7 +29,7 @@
         </button>
       </div>
 
-      <!-- Category Pills YVAS -->
+      <!-- Category Pills -->
       <div class="category-pills">
         <button *ngFor="let cat of categories"
                 class="cat-pill"
@@ -44,9 +44,9 @@
       <!-- Sort + View -->
       <div class="filters-right">
         <div class="filter-field">
-          <label>Budget max</label>
+          <label>{{ 'voyages.budgetMax' | translate }}</label>
           <select [(ngModel)]="searchParams.prixMax" (ngModelChange)="applyFilters()">
-            <option [ngValue]="undefined">Tous</option>
+            <option [ngValue]="undefined">{{ 'common.all' | translate }}</option>
             <option [ngValue]="1000000">≤ 1 M FCFA</option>
             <option [ngValue]="3000000">≤ 3 M FCFA</option>
             <option [ngValue]="5000000">≤ 5 M FCFA</option>
@@ -54,20 +54,20 @@
           </select>
         </div>
         <div class="filter-field">
-          <label>Trier par</label>
+          <label>{{ 'voyages.sortBy' | translate }}</label>
           <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
-            <option value="date">Date départ</option>
-            <option value="price_asc">Prix croissant</option>
-            <option value="price_desc">Prix décroissant</option>
-            <option value="places">Disponibilité</option>
-            <option value="duration">Durée</option>
+            <option value="date">{{ 'voyages.sortDate' | translate }}</option>
+            <option value="price_asc">{{ 'voyages.sortPriceAsc' | translate }}</option>
+            <option value="price_desc">{{ 'voyages.sortPriceDesc' | translate }}</option>
+            <option value="places">{{ 'voyages.sortPlaces' | translate }}</option>
+            <option value="duration">{{ 'voyages.sortDuration' | translate }}</option>
           </select>
         </div>
         <div class="view-toggle">
-          <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" title="Vue grille">
+          <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" [title]="'voyages.gridView' | translate">
             <i class="bi bi-grid-3x3-gap-fill"></i>
           </button>
-          <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="Vue liste">
+          <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" [title]="'voyages.listView' | translate">
             <i class="bi bi-list-ul"></i>
           </button>
         </div>
@@ -76,7 +76,7 @@
 
     <!-- Active filter tags -->
     <div class="active-filters" *ngIf="hasActiveFilters">
-      <span class="filter-tag-label">Filtres actifs:</span>
+      <span class="filter-tag-label">{{ 'voyages.activeFilters' | translate }}</span>
       <span class="filter-tag" *ngIf="searchParams.destination">
         📍 {{ searchParams.destination }}
         <button (click)="searchParams.destination=''; applyFilters()"><i class="bi bi-x"></i></button>
@@ -89,7 +89,7 @@
         🏷️ {{ selectedCategory }}
         <button (click)="selectedCategory=''; applyFilters()"><i class="bi bi-x"></i></button>
       </span>
-      <button class="reset-filters" (click)="resetFilters()">Tout effacer</button>
+      <button class="reset-filters" (click)="resetFilters()">{{ 'voyages.clearAll' | translate }}</button>
     </div>
   </div>
 </div>
@@ -101,20 +101,20 @@
     <!-- Loading -->
     <div class="loading-page" *ngIf="loading">
       <div class="spinner-voyageur"></div>
-      <span>Chargement des voyages…</span>
+      <span>{{ 'voyages.loading' | translate }}</span>
     </div>
 
     <!-- No results -->
     <div class="no-results" *ngIf="!loading && filteredVoyages.length === 0">
       <div class="no-results-icon">🔍</div>
-      <h3>Aucun voyage trouvé</h3>
-      <p>Essayez de modifier vos critères de recherche.</p>
+      <h3>{{ 'voyages.noResults' | translate }}</h3>
+      <p>{{ 'voyages.noResultsDesc' | translate }}</p>
       <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="resetFilters()">
-        Réinitialiser les filtres
+        {{ 'voyages.resetFilters' | translate }}
       </button>
     </div>
 
-    <!-- Grid -->
+    <!-- Grid / List -->
     <div [class]="viewMode === 'grid' ? 'grid-3' : 'list-view'" *ngIf="!loading && filteredVoyages.length > 0">
       <app-voyage-card
         *ngFor="let voyage of filteredVoyages; trackBy: trackById"
@@ -125,8 +125,7 @@
 
     <!-- Count -->
     <div class="results-count" *ngIf="!loading && filteredVoyages.length > 0">
-      {{ filteredVoyages.length }} résultat{{ filteredVoyages.length > 1 ? 's' : '' }}
-      <span *ngIf="hasActiveFilters"> pour vos critères</span>
+      {{ filteredVoyages.length }} {{ filteredVoyages.length > 1 ? ('voyages.availablePlural' | translate) : ('voyages.available' | translate) }}
     </div>
   </div>
 </div>

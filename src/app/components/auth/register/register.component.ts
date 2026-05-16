@@ -13,14 +13,13 @@ import { NotificationService } from '../../../services/notification.service';
       <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=85" alt="inscription">
       <div class="av-overlay"></div>
       <div class="av-content">
-        <h2>Commencez votre<br><em>aventure</em> avec Yvas</h2>
-        <p>Rejoignez plus de 12 000 voyageurs et accédez à des destinations d'exception à prix exclusifs.</p>
+        <h2>{{ 'auth.register.heroTitle' | translate }}<br><em>{{ 'auth.register.heroTitleEm' | translate }}</em> {{ 'auth.register.heroSuffix' | translate }}</h2>
         <ul class="av-perks">
-          <li><span>✓</span> Réservation en quelques clics</li>
-          <li><span>✓</span> Suivi temps réel de votre voyage</li>
-          <li><span>✓</span> Notifications personnalisées</li>
-          <li><span>✓</span> Service client 7j/7</li>
-          <li><span>✓</span> 10% de réduction sur le 1er voyage</li>
+          <li><span>✓</span> {{ 'auth.register.perk1' | translate }}</li>
+          <li><span>✓</span> {{ 'auth.register.perk2' | translate }}</li>
+          <li><span>✓</span> {{ 'auth.register.perk3' | translate }}</li>
+          <li><span>✓</span> {{ 'auth.register.perk4' | translate }}</li>
+          <li><span>✓</span> {{ 'auth.register.perk5' | translate }}</li>
         </ul>
       </div>
     </div>
@@ -28,14 +27,14 @@ import { NotificationService } from '../../../services/notification.service';
     <div class="auth-form-wrap">
       <div class="auth-form-inner" *ngIf="!emailSent">
         <div class="auth-logo" routerLink="/" style="cursor:pointer">✈️ <span>Voyag<em>eur</em></span></div>
-        <h1>Créer un compte</h1>
-        <p class="auth-subtitle">Gratuit, sans engagement. En 2 minutes.</p>
+        <h1>{{ 'auth.register.title' | translate }}</h1>
+        <p class="auth-subtitle">{{ 'auth.register.subtitle' | translate }}</p>
 
         <div class="form-voyageur" style="margin-top:28px">
-          <div class="form-section-title">Informations personnelles</div>
+          <div class="form-section-title">{{ 'auth.register.personalInfo' | translate }}</div>
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label">Prénom *</label>
+              <label class="form-label">{{ 'auth.register.firstName' | translate }} *</label>
               <input type="text" class="form-control" [(ngModel)]="firstName" placeholder="Jean"
                      [class.error]="errors['firstName']">
               <div class="form-error" *ngIf="errors['firstName']">
@@ -43,13 +42,13 @@ import { NotificationService } from '../../../services/notification.service';
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Nom *</label>
+              <label class="form-label">{{ 'auth.register.lastName' | translate }} *</label>
               <input type="text" class="form-control" [(ngModel)]="lastName" placeholder="Dupont"
                      [class.error]="errors['lastName']">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Email *</label>
+            <label class="form-label">{{ 'auth.register.email' | translate }} *</label>
             <div class="input-icon-wrap">
               <i class="bi bi-envelope-fill"></i>
               <input type="email" class="form-control" [(ngModel)]="email"
@@ -58,17 +57,17 @@ import { NotificationService } from '../../../services/notification.service';
             <div class="form-error" *ngIf="errors['email']"><i class="bi bi-exclamation-circle"></i> {{ errors['email'] }}</div>
           </div>
           <div class="form-group">
-            <label class="form-label">Téléphone</label>
+            <label class="form-label">{{ 'auth.register.phone' | translate }}</label>
             <div class="input-icon-wrap">
               <i class="bi bi-telephone-fill"></i>
               <input type="tel" class="form-control" [(ngModel)]="phone" placeholder="+33 6 12 34 56 78">
             </div>
           </div>
 
-          <div class="form-section-title">Sécurité</div>
+          <div class="form-section-title">{{ 'auth.register.security' | translate }}</div>
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label">Mot de passe *</label>
+              <label class="form-label">{{ 'auth.register.password' | translate }} *</label>
               <div class="input-icon-wrap">
                 <i class="bi bi-lock-fill"></i>
                 <input [type]="showPwd ? 'text' : 'password'" class="form-control"
@@ -77,13 +76,13 @@ import { NotificationService } from '../../../services/notification.service';
                   <i [class]="showPwd ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                 </button>
               </div>
-              <div class="form-hint">Minimum 6 caractères</div>
+              <div class="form-hint">{{ 'auth.register.passwordHint' | translate }}</div>
               <div class="pwd-strength" *ngIf="password">
                 <div class="ps-bar" [style.width.%]="pwdStrength" [class]="pwdStrengthClass"></div>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Confirmer *</label>
+              <label class="form-label">{{ 'auth.register.confirmPassword' | translate }} *</label>
               <input [type]="showPwd ? 'text' : 'password'" class="form-control"
                      [(ngModel)]="confirmPwd" placeholder="••••••••" [class.error]="errors['confirmPwd']">
               <div class="form-error" *ngIf="errors['confirmPwd']"><i class="bi bi-exclamation-circle"></i> {{ errors['confirmPwd'] }}</div>
@@ -93,13 +92,13 @@ import { NotificationService } from '../../../services/notification.service';
           <div class="terms-check">
             <label>
               <input type="checkbox" [(ngModel)]="acceptTerms" style="accent-color:var(--teal)">
-              <span>J'accepte les <a href="#" class="terms-link">conditions d'utilisation</a> et la <a href="#" class="terms-link">politique de confidentialité</a> *</span>
+              <span>{{ 'auth.register.acceptTerms' | translate }} *</span>
             </label>
           </div>
           <div class="terms-check">
             <label>
               <input type="checkbox" [(ngModel)]="acceptNewsletter" style="accent-color:var(--teal)">
-              <span>Recevoir les offres exclusives par email</span>
+              <span>{{ 'auth.register.newsletter' | translate }}</span>
             </label>
           </div>
         </div>
@@ -110,13 +109,13 @@ import { NotificationService } from '../../../services/notification.service';
 
         <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-lg"
                 (click)="doRegister()" [disabled]="loading" style="margin-top:20px">
-          <span *ngIf="!loading">Créer mon compte <i class="bi bi-arrow-right ms-1"></i></span>
-          <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Création…</span>
+          <span *ngIf="!loading">{{ 'auth.register.submit' | translate }} <i class="bi bi-arrow-right ms-1"></i></span>
+          <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>{{ 'auth.register.loading' | translate }}</span>
         </button>
 
         <div class="auth-switch" style="margin-top:20px">
-          Déjà un compte?
-          <a routerLink="/connexion">Se connecter</a>
+          {{ 'auth.register.alreadyAccount' | translate }}
+          <a routerLink="/connexion">{{ 'auth.register.loginLink' | translate }}</a>
         </div>
       </div>
 
@@ -125,19 +124,19 @@ import { NotificationService } from '../../../services/notification.service';
         <div class="auth-logo" routerLink="/" style="cursor:pointer">✈️ <span>Voyag<em>eur</em></span></div>
         <div class="email-sent-card">
           <div class="es-icon">📧</div>
-          <h2>Vérifiez votre boite mail</h2>
-          <p>Un email de confirmation a été envoyé à</p>
+          <h2>{{ 'auth.register.checkEmail' | translate }}</h2>
+          <p>{{ 'auth.register.checkEmailDesc' | translate }}</p>
           <strong class="es-email">{{ registeredEmail }}</strong>
           <p style="margin-top:16px;color:#888;font-size:14px">
-            Cliquez sur le lien dans l'email pour activer votre compte et commencer à réserver vos voyages.
+            {{ 'auth.register.checkEmailInfo' | translate }}
           </p>
           <div class="es-steps">
-            <div class="es-step"><span>1</span> Ouvrez votre boite mail</div>
-            <div class="es-step"><span>2</span> Cliquez sur "Activer mon compte"</div>
-            <div class="es-step"><span>3</span> Vous serez connecté automatiquement</div>
+            <div class="es-step"><span>1</span> {{ 'auth.register.step1' | translate }}</div>
+            <div class="es-step"><span>2</span> {{ 'auth.register.step2' | translate }}</div>
+            <div class="es-step"><span>3</span> {{ 'auth.register.step3' | translate }}</div>
           </div>
           <p style="margin-top:20px;font-size:13px;color:#aaa">
-            Pas reçu? Vérifiez vos spams ou <a href="#" (click)="resendEmail($event)" style="color:var(--teal)">renvoyer l'email</a>
+            {{ 'auth.register.noEmail' | translate }} <a href="#" (click)="resendEmail($event)" style="color:var(--teal)">{{ 'auth.register.resend' | translate }}</a>
           </p>
         </div>
       </div>

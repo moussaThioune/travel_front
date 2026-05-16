@@ -5,8 +5,8 @@
   <div class="rh-overlay"></div>
   <img src="https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=1600&q=80" alt="" class="rh-bg">
   <div class="section-wrapper rh-content">
-    <h1>Mes <em>réservations</em></h1>
-    <p>Suivez vos voyages et vos paiements en temps réel.</p>
+    <h1>{{ 'reservations.title' | translate }} <em>{{ 'reservations.titleEm' | translate }}</em></h1>
+    <p>{{ 'reservations.subtitle' | translate }}</p>
   </div>
 </div>
 
@@ -15,19 +15,19 @@
   <div class="section-wrapper rsb-inner">
     <div class="rsb-stat">
       <strong>{{ stats.total }}</strong>
-      <span>Réservation{{ stats.total > 1 ? 's' : '' }}</span>
+      <span>{{ stats.total > 1 ? ('reservations.statTotalPlural' | translate) : ('reservations.statTotal' | translate) }}</span>
     </div>
     <div class="rsb-stat">
       <strong class="text-teal">{{ stats.paid }}</strong>
-      <span>Payée{{ stats.paid > 1 ? 's' : '' }}</span>
+      <span>{{ stats.paid > 1 ? ('reservations.statPaidPlural' | translate) : ('reservations.statPaid' | translate) }}</span>
     </div>
     <div class="rsb-stat">
       <strong class="text-gold">{{ stats.pending }}</strong>
-      <span>En attente</span>
+      <span>{{ 'reservations.statPending' | translate }}</span>
     </div>
     <div class="rsb-stat">
       <strong>{{ stats.totalSpent | number:'1.0-0' }} CFA</strong>
-      <span>Total dépensé</span>
+      <span>{{ 'reservations.statSpent' | translate }}</span>
     </div>
   </div>
 </div>
@@ -39,10 +39,10 @@
     <!-- Vide -->
     <div class="res-empty" *ngIf="!reservations.length">
       <div class="re-icon">🗺️</div>
-      <h3>Aucune réservation</h3>
-      <p>Vous n'avez pas encore réservé de voyage. Commencez à explorer nos destinations!</p>
+      <h3>{{ 'reservations.empty' | translate }}</h3>
+      <p>{{ 'reservations.emptyDesc' | translate }}</p>
       <a routerLink="/voyages" class="btn-voyageur btn-voyageur-teal btn-voyageur-md">
-        Explorer les voyages <i class="bi bi-arrow-right ms-1"></i>
+        {{ 'reservations.exploreBtn' | translate }} <i class="bi bi-arrow-right ms-1"></i>
       </a>
     </div>
 
@@ -61,8 +61,8 @@
             <div class="rc-name">{{ res.voyage.titre }}</div>
             <div class="rc-meta">
               <span><i class="bi bi-geo-alt-fill"></i> {{ res.voyage.destination }}</span>
-              <span><i class="bi bi-people-fill"></i> {{ res.nombrePersonnes }} pers.</span>
-              <span><i class="bi bi-calendar3"></i> {{ res.voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</span>
+              <span><i class="bi bi-people-fill"></i> {{ res.nombrePersonnes }} {{ 'reservations.persons' | translate }}</span>
+              <span><i class="bi bi-calendar3"></i> {{ res.voyage.dateDepart | date:'d MMM yyyy' }}</span>
             </div>
           </div>
           <div class="rc-right">
@@ -78,7 +78,7 @@
 
             <!-- Timeline -->
             <div class="rcb-col">
-              <div class="rcb-col-title"><i class="bi bi-geo-alt-fill text-teal me-2"></i>Suivi de réservation</div>
+              <div class="rcb-col-title"><i class="bi bi-geo-alt-fill text-teal me-2"></i>{{ 'reservations.tracking' | translate }}</div>
               <div class="tracking-timeline">
                 <div class="tl-item" *ngFor="let event of res.timeline">
                   <div class="tl-dot" [class.done]="event.done" [class.current]="event.current && !event.done"></div>
@@ -96,7 +96,7 @@
 
             <!-- Paiements + Infos -->
             <div class="rcb-col">
-              <div class="rcb-col-title"><i class="bi bi-credit-card-fill text-teal me-2"></i>Paiements</div>
+              <div class="rcb-col-title"><i class="bi bi-credit-card-fill text-teal me-2"></i>{{ 'reservations.payments' | translate }}</div>
 
               <!-- Montants -->
               <div class="payment-block">
@@ -105,7 +105,7 @@
                   <strong>{{ res.prixTotal | number:'1.0-0' }} CFA</strong>
                 </div>
                 <div class="pb-row">
-                  <span>Payé</span>
+                  <span>{{ 'reservations.statPaid' | translate }}</span>
                   <strong class="text-teal">{{ res.montantPaye | number:'1.0-0' }} CFA</strong>
                 </div>
                 <div class="pb-row" *ngIf="res.montantRestant > 0">
@@ -114,7 +114,7 @@
                 </div>
                 <div class="pb-progress">
                   <div class="pb-progress-label">
-                    <span>{{ paidPercent(res) }}% payé</span>
+                    <span>{{ paidPercent(res) }}% {{ 'reservations.statPaid' | translate | lowercase }}</span>
                     <span>{{ res.prixTotal | number:'1.0-0' }} CFA</span>
                   </div>
                   <div class="progress-voyageur">
@@ -160,8 +160,8 @@
             <button class="btn-cancel"
                     (click)="confirmCancel(res)"
                     [disabled]="cancellingId === res.id || res.statut === 'PAYEE'">
-              <span *ngIf="cancellingId !== res.id"><i class="bi bi-x-circle me-1"></i>Annuler</span>
-              <span *ngIf="cancellingId === res.id"><span class="spinner-border spinner-border-sm me-1"></span>Annulation…</span>
+              <span *ngIf="cancellingId !== res.id"><i class="bi bi-x-circle me-1"></i>{{ 'reservations.statuses.ANNULEE' | translate }}</span>
+              <span *ngIf="cancellingId === res.id"><span class="spinner-border spinner-border-sm me-1"></span>{{ 'common.loading' | translate }}</span>
             </button>
             <span class="cancel-hint" *ngIf="res.statut === 'PAYEE'">Contactez le service client pour annuler.</span>
           </div>

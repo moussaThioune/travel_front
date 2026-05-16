@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { VoyageService } from '../../services/voyage.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -20,6 +20,8 @@ export class AdminComponent implements OnInit {
 
   voyages: Voyage[] = [];
   reservations: Reservation[] = [];
+
+  @ViewChild('voyageFormRef') voyageFormRef!: ElementRef;
 
   showVoyageForm = false;
   editingVoyage: Voyage | null = null;
@@ -183,6 +185,18 @@ export class AdminComponent implements OnInit {
   }
 
   // ===== VOYAGES CRUD =====
+  openCreateForm(): void {
+    this.showVoyageForm = true;
+    this.editingVoyage = null;
+    this.form = this.emptyForm();
+    this.imagePreview = '';
+    this.imageFile = null;
+    this.imageMode = 'upload';
+    setTimeout(() => {
+      this.voyageFormRef?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
   editVoyage(v: Voyage): void {
     this.editingVoyage = v;
     this.form = { titre: v.titre, description: v.description, destination: v.destination, paysDestination: v.paysDestination, dateDepart: v.dateDepart, dateRetour: v.dateRetour, prixParPersonne: v.prixParPersonne, nombrePlacesTotal: v.nombrePlacesTotal, categorie: v.categorie, imageUrl: v.imageUrl };

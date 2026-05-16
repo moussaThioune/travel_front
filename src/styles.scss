@@ -527,6 +527,59 @@ body.modal-open {
   overflow: hidden;
 }
 
+// ===== RTL (Arabic) =====
+body.rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+
+  // Flip icon margins
+  .ms-1, .ms-2 { margin-left: 0 !important; margin-right: 0.25rem !important; }
+  .me-1, .me-2 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+
+  // Nav links align right in mobile
+  .nav-links a { text-align: right; }
+
+  // Step connectors flip
+  .step-connector .bi-chevron-right::before { content: "\f283"; } // chevron-left
+
+  // Footer grid
+  .footer-grid { direction: rtl; }
+
+  // Form labels
+  .form-label { text-align: right; display: block; }
+
+  // Input icons flip sides
+  .input-icon-wrap i:first-child {
+    left: auto;
+    right: 14px;
+  }
+  .input-icon-wrap .form-control { padding-left: 12px !important; padding-right: 40px !important; }
+  .input-icon-wrap .toggle-pwd { right: auto; left: 14px; }
+
+  // Search bar
+  .search-input-wrap i { left: auto; right: 14px; }
+  .search-input-wrap input,
+  .search-input-wrap select { padding-left: 12px !important; padding-right: 40px !important; }
+
+  // Cards & meta
+  .vc-meta, .rc-meta { flex-direction: row-reverse; justify-content: flex-end; }
+  .vc-footer { flex-direction: row-reverse; }
+  .vc-price { text-align: right; }
+
+  // Notification & dropdown panels
+  .notif-panel { right: auto; left: -100px; }
+  .user-dropdown { right: auto; left: 0; }
+  .lang-dropdown { right: auto; left: 0; }
+
+  // Pagination
+  .pagination-bar { direction: rtl; }
+
+  // Auth visual
+  .av-content { text-align: right; }
+  .av-perks li { flex-direction: row-reverse; }
+}
+
 // ===== MEDIA QUERIES =====
 @media (max-width: 768px) {
   .section-wrapper { padding: 0 20px; }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LanguageService } from './services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Voyageur — L\'agence de voyage d\'exception';
+
+  constructor(langService: LanguageService) {
+    // Ensures LanguageService is instantiated on startup,
+    // applying saved language + RTL direction from localStorage
+  }
 }

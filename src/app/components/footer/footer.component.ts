@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
       <!-- Brand -->
       <div class="footer-brand">
         <div class="footer-logo">✈️ Voyag<span>eur</span></div>
-        <p>L'agence de voyage d'exception depuis 2010. Nous créons des expériences inoubliables dans les plus belles destinations du monde.</p>
+        <p>{{ 'footer.desc' | translate }}</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/yvasvoyage" class="social-link" title="Facebook"><i class="bi bi-facebook"></i></a>
           <a href="https://www.instagram.com/yvasvoyage" class="social-link" title="Instagram"><i class="bi bi-instagram"></i></a>
@@ -21,44 +21,44 @@ import { Component } from '@angular/core';
 
       <!-- Navigation -->
       <div class="footer-col">
-        <h4>Navigation</h4>
+        <h4>{{ 'footer.navigation' | translate }}</h4>
         <ul>
-          <li><a routerLink="/">Accueil</a></li>
-          <li><a routerLink="/voyages">Nos voyages</a></li>
-          <li><a routerLink="/destinations">Destinations</a></li>
-          <li><a routerLink="/mes-reservations">Mes réservations</a></li>
-          <li><a routerLink="/inscription">Créer un compte</a></li>
+          <li><a routerLink="/">{{ 'footer.home' | translate }}</a></li>
+          <li><a routerLink="/voyages">{{ 'footer.ourVoyages' | translate }}</a></li>
+          <li><a routerLink="/destinations">{{ 'footer.destinations' | translate }}</a></li>
+          <li><a routerLink="/mes-reservations">{{ 'footer.myReservations' | translate }}</a></li>
+          <li><a routerLink="/inscription">{{ 'footer.createAccount' | translate }}</a></li>
         </ul>
       </div>
 
       <!-- Services -->
       <div class="footer-col">
-        <h4>Services</h4>
+        <h4>{{ 'footer.services' | translate }}</h4>
         <ul>
-          <li><a href="#">Voyages sur mesure</a></li>
-          <li><a href="#">Voyage en groupe</a></li>
-          <li><a href="#">Lune de miel</a></li>
-          <li><a href="#">Voyages d'affaires</a></li>
-          <li><a href="#">Assurance voyage</a></li>
+          <li><a href="#">{{ 'footer.customTrips' | translate }}</a></li>
+          <li><a href="#">{{ 'footer.groupTrips' | translate }}</a></li>
+          <li><a href="#">{{ 'footer.honeymoon' | translate }}</a></li>
+          <li><a href="#">{{ 'footer.business' | translate }}</a></li>
+          <li><a href="#">{{ 'footer.insurance' | translate }}</a></li>
         </ul>
       </div>
 
       <!-- Contact -->
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h4>{{ 'footer.contact' | translate }}</h4>
         <ul class="contact-list">
           <li><i class="bi bi-geo-alt-fill"></i><span>rue Baye Seydi Thiaw<br>Yoff, Dakar</span></li>
           <li><i class="bi bi-telephone-fill"></i><span>+221 78 143 44 44</span></li>
           <li><i class="bi bi-telephone-fill"></i><span>+221 77 426 25 43</span></li>
           <li><i class="bi bi-envelope-fill"></i><span>yvasvoyage&#64;gmail.com</span></li>
-          <li><i class="bi bi-clock-fill"></i><span>Lun–Ven 9h–21h<br>Samedi 10h–21h</span></li>
+          <li><i class="bi bi-clock-fill"></i><span>{{ 'footer.schedule' | translate }}</span></li>
         </ul>
 
         <!-- Newsletter -->
         <div class="footer-newsletter">
-          <div class="fn-label">Newsletter</div>
+          <div class="fn-label">{{ 'footer.newsletter' | translate }}</div>
           <div class="fn-form">
-            <input type="email" [(ngModel)]="newsletterEmail" placeholder="votre&#64;email.com">
+            <input type="email" [(ngModel)]="newsletterEmail" [placeholder]="'footer.emailPlaceholder' | translate">
             <button (click)="subscribe()"><i class="bi bi-send-fill"></i></button>
           </div>
         </div>
@@ -70,15 +70,15 @@ import { Component } from '@angular/core';
     <div class="section-wrapper fb-inner">
       <div class="fb-copy">
         © {{ year }} Yvoyage SAS —
-        <a href="#">Mentions légales</a> ·
-        <a href="#">Confidentialité</a> ·
-        <a href="#">CGV</a>
+        <a href="#">{{ 'footer.legal' | translate }}</a> ·
+        <a href="#">{{ 'footer.privacy' | translate }}</a> ·
+        <a href="#">{{ 'footer.cgv' | translate }}</a>
       </div>
       <div class="fb-badges">
-        <span class="fb-badge"><i class="bi bi-shield-lock-fill"></i> SSL sécurisé</span>
-        <span class="fb-badge"><i class="bi bi-patch-check-fill"></i> Certifié IATA</span>
-        <span class="fb-badge"><i class="bi bi-award-fill"></i> APST agréé</span>
-        <span class="fb-badge"><i class="bi bi-credit-card-fill"></i> Paiement sécurisé</span>
+        <span class="fb-badge"><i class="bi bi-shield-lock-fill"></i> {{ 'footer.ssl' | translate }}</span>
+        <span class="fb-badge"><i class="bi bi-patch-check-fill"></i> {{ 'footer.iata' | translate }}</span>
+        <span class="fb-badge"><i class="bi bi-award-fill"></i> {{ 'footer.apst' | translate }}</span>
+        <span class="fb-badge"><i class="bi bi-credit-card-fill"></i> {{ 'footer.securePay' | translate }}</span>
       </div>
     </div>
   </div>
