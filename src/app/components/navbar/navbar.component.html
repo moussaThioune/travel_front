@@ -3,12 +3,12 @@
 
     <!-- Logo -->
     <a class="nav-logo" routerLink="/" (click)="closeMenu()">
-      <img src="assets/images/logo-yvas.png" alt="YVAS — Yatou Voyages Assurances et Services" class="yvas-logo-img">
+      <img src="assets/images/logo-yvas.png" alt="YVAS" class="yvas-logo-img">
+ 
+        <img src="assets/images/avion.png" 
+       alt="avion" class="plane-img">
     </a>
 
-    <div class="nav-plane">
-  <span class="plane-emoji">✈️</span>
-</div>
     <!-- Desktop + Mobile links -->
     <div class="nav-links" [class.open]="isMenuOpen">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>

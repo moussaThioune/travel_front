@@ -36,7 +36,9 @@ export interface Voyage {
   inclusions?: string[]; highlights?: string[];
 }
 
-export interface VoyageSearchParams { destination?: string; dateDepart?: string; prixMax?: number; places?: number; categorie?: VoyageCategorie; }
+export interface VoyageSearchParams {
+dateRetour: any; destination?: string; dateDepart?: string; prixMax?: number; places?: number; categorie?: VoyageCategorie; 
+}
 export interface VoyageCreateRequest {
   titre: string; description: string; destination: string; paysDestination: string;
   dateDepart: string; dateRetour: string; prixParPersonne: number; nombrePlacesTotal: number;

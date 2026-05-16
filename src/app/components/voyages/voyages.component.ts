@@ -13,7 +13,13 @@ export class VoyagesComponent implements OnInit {
   filteredVoyages: Voyage[] = [];
   loading = false;
 
-  searchParams: VoyageSearchParams = {};
+  searchParams: VoyageSearchParams = {
+    destination: '',
+    dateDepart: '',
+    dateRetour: '',
+    places: undefined,
+    prixMax: undefined
+  };
   sortBy = 'date';
   viewMode: 'grid' | 'list' = 'grid';
 
@@ -90,7 +96,13 @@ export class VoyagesComponent implements OnInit {
   onSortChange(): void { this.applyFilters(); }
 
   resetFilters(): void {
-    this.searchParams = {};
+    this.searchParams = {
+      destination: '',
+      dateDepart: '',
+      dateRetour: '',
+      places: undefined,
+      prixMax: undefined
+    };
     this.selectedCategory = '';
     this.sortBy = 'date';
     this.applyFilters();

@@ -22,11 +22,7 @@
     transform: scale(1);
   }
 }
-.plane-emoji {
-  font-size: 72px;  /* ← augmenté, était 36px */
-  display: block;
-  animation: planeFly 3s ease-in-out infinite;
-}
+
 .hero-overlay {
   position: absolute;
   inset: 0;

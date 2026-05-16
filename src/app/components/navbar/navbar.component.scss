@@ -48,6 +48,33 @@ nav {
   transition: opacity 0.3s;
   &:hover { opacity: 0.85; }
 
+
+.plane-img {
+  position: absolute;
+  left: 380px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  /* mix-blend-mode: multiply; ← plus besoin */
+  z-index: 2;
+  pointer-events: none;
+  animation: planeFly 4s ease-in-out infinite;
+}
+
+@keyframes planeFly {
+  0%   { transform: translateY(-50%) rotate(-3deg); }
+  50%  { transform: translateY(calc(-50% - 8px)) rotate(3deg); }
+  100% { transform: translateY(-50%) rotate(-3deg); }
+}
+.plane-emoji {
+  font-size: 100px;
+  display: block;
+  transform: scale(3);  /* ← multiplie la taille par 3 */
+  transform-origin: left center;
+  animation: planeFly 3s ease-in-out infinite;
+}
   .yvas-logo-img {
     height: 200px;
     width: auto;
