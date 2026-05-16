@@ -13,7 +13,13 @@ import { Voyage, Destination, VoyageSearchParams } from '../../models/models';
 export class HomeComponent implements OnInit, OnDestroy {
   featuredVoyages: Voyage[] = [];
   destinations: Destination[] = [];
-  searchParams: VoyageSearchParams = {};
+  searchParams = {
+  destination: '',
+  dateDepart: '',
+  dateRetour: '',   // ← ajouter
+  places: undefined,
+  prixMax: undefined
+};
 
   readonly heroImages = [
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=2000&q=90',
