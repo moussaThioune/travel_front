@@ -1,11 +1,14 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { Voyage, VoyageSearchParams, VoyageCreateRequest, VoyageStatut } from '../models/models';
-import { MockDataService } from './mock-data.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class VoyageService {
+  private readonly API = `${environment.apiUrl}/voyages`;
+
   private _voyages = signal<Voyage[]>([]);
   readonly voyages = this._voyages.asReadonly();
   readonly activeVoyages = computed(() => this._voyages().filter(v => v.statut === 'ACTIF'));
@@ -14,83 +17,69 @@ export class VoyageService {
   private _loading = signal(false);
   readonly loading = this._loading.asReadonly();
 
-  constructor(private mockData: MockDataService) {
-    this._voyages.set(this.mockData.VOYAGES);
+  constructor(private http: HttpClient) {
+    this.loadAll();
+  }
+
+  private loadAll(): void {
+    this._loading.set(true);
+    this.http.get<Voyage[]>(this.API).subscribe({
+      next: voyages => { this._voyages.set(voyages); this._loading.set(false); },
+      error: () => this._loading.set(false)
+    });
   }
 
   getAll(): Observable<Voyage[]> {
     this._loading.set(true);
-    return of(this._voyages()).pipe(
-      delay(400),
-      map(v => { this._loading.set(false); return v; })
+    return this.http.get<Voyage[]>(this.API).pipe(
+      tap(voyages => { this._voyages.set(voyages); this._loading.set(false); }),
+      catchError(err => { this._loading.set(false); return throwError(() => err); })
     );
   }
 
   getAvailable(): Observable<Voyage[]> {
-    return of(this.activeVoyages()).pipe(delay(300));
+    return this.http.get<Voyage[]>(`${this.API}/available`);
   }
 
   getById(id: number): Observable<Voyage> {
-    const voyage = this._voyages().find(v => v.id === id);
-    if (!voyage) return throwError(() => ({ message: 'Voyage non trouvé' }));
-    return of(voyage).pipe(delay(250));
+    return this.http.get<Voyage>(`${this.API}/${id}`);
   }
 
   search(params: VoyageSearchParams): Observable<Voyage[]> {
-    let result = this.activeVoyages();
-    if (params.destination) {
-      const d = params.destination.toLowerCase();
-      result = result.filter(v =>
-        v.destination.toLowerCase().includes(d) ||
-        v.paysDestination.toLowerCase().includes(d) ||
-        v.titre.toLowerCase().includes(d)
-      );
-    }
-    if (params.dateDepart) {
-      result = result.filter(v => v.dateDepart >= params.dateDepart!);
-    }
-    if (params.prixMax) {
-      result = result.filter(v => v.prixParPersonne <= params.prixMax!);
-    }
-    if (params.places) {
-      result = result.filter(v => v.nombrePlacesDisponibles >= params.places!);
-    }
-    if (params.categorie) {
-      result = result.filter(v => v.categorie === params.categorie);
-    }
-    return of(result).pipe(delay(300));
+    let httpParams = new HttpParams();
+    if (params.destination) httpParams = httpParams.set('destination', params.destination);
+    if (params.dateDepart) httpParams = httpParams.set('dateDepart', params.dateDepart);
+    if (params.prixMax != null) httpParams = httpParams.set('prixMax', String(params.prixMax));
+    if (params.places != null) httpParams = httpParams.set('places', String(params.places));
+    return this.http.get<Voyage[]>(`${this.API}/search`, { params: httpParams });
   }
 
-create(req: VoyageCreateRequest): Observable<Voyage> {
-  const newVoyage: Voyage = {
-    ...req,
-    id: Date.now(),
-    statut: 'ACTIF',
-    nombrePlacesDisponibles: req.nombrePlacesTotal,
-    dureeJours: this.calcDuration(req.dateDepart, req.dateRetour),
-    imageUrl: req.imageUrl ?? 'assets/default-image.jpg'  // valeur par défaut
-  };
-  this._voyages.update(v => [newVoyage, ...v]);
-  return of(newVoyage).pipe(delay(500));
-}
+  create(req: VoyageCreateRequest): Observable<Voyage> {
+    return this.http.post<Voyage>(this.API, req).pipe(
+      tap(newVoyage => this._voyages.update(v => [newVoyage, ...v]))
+    );
+  }
 
   update(id: number, req: Partial<VoyageCreateRequest>): Observable<Voyage> {
-    this._voyages.update(voyages =>
-      voyages.map(v => v.id === id ? { ...v, ...req } : v)
+    return this.http.put<Voyage>(`${this.API}/${id}`, req).pipe(
+      tap(updated => this._voyages.update(voyages =>
+        voyages.map(v => v.id === id ? updated : v)
+      ))
     );
-    return of(this._voyages().find(v => v.id === id)!).pipe(delay(400));
   }
 
   updateStatus(id: number, statut: VoyageStatut): Observable<Voyage> {
-    this._voyages.update(voyages =>
-      voyages.map(v => v.id === id ? { ...v, statut } : v)
+    return this.http.patch<Voyage>(`${this.API}/${id}/statut`, null, { params: { statut } }).pipe(
+      tap(updated => this._voyages.update(voyages =>
+        voyages.map(v => v.id === id ? updated : v)
+      ))
     );
-    return of(this._voyages().find(v => v.id === id)!).pipe(delay(300));
   }
 
   delete(id: number): Observable<void> {
-    this._voyages.update(v => v.filter(v => v.id !== id));
-    return of(undefined).pipe(delay(400));
+    return this.http.delete<void>(`${this.API}/${id}`).pipe(
+      tap(() => this._voyages.update(v => v.filter(v => v.id !== id)))
+    );
   }
 
   reduceAvailability(voyageId: number, nbPersons: number): void {
@@ -124,11 +113,5 @@ create(req: VoyageCreateRequest): Observable<Voyage> {
     if (d <= 2) return `⚡ Plus que ${d} place${d > 1 ? 's' : ''}!`;
     if (d <= 6) return `${d} places restantes`;
     return `${d} places disponibles`;
-  }
-
-  private calcDuration(dateDepart: string, dateRetour: string): number {
-    const d1 = new Date(dateDepart);
-    const d2 = new Date(dateRetour);
-    return Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
   }
 }

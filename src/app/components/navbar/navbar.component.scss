@@ -76,16 +76,9 @@ nav {
   animation: planeFly 3s ease-in-out infinite;
 }
 .yvas-logo-img {
-  height: 110px;
-  width: 110px;
+  height: 140px;
+  width: 140px;
   object-fit: contain;
-  
-
-  filter: brightness(0) invert(1);
-
-  mix-blend-mode: screen;
-
- 
   filter: brightness(1.4) contrast(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.4));
 }
   .logo-icon { font-size: 20px; }
