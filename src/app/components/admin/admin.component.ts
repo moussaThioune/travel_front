@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { VoyageService } from '../../services/voyage.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -20,8 +20,6 @@ export class AdminComponent implements OnInit {
 
   voyages: Voyage[] = [];
   reservations: Reservation[] = [];
-
-  @ViewChild('voyageFormRef') voyageFormRef!: ElementRef;
 
   showVoyageForm = false;
   editingVoyage: Voyage | null = null;
@@ -66,8 +64,14 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['/connexion']);
       return;
     }
-    this.voyageService.getAll().subscribe(v => this.voyages = v);
-    this.reservationService.getAllForAdmin().subscribe(r => this.reservations = r);
+    this.voyageService.getAll().subscribe({
+      next: v => this.voyages = v,
+      error: () => {}
+    });
+    this.reservationService.getAllForAdmin().subscribe({
+      next: r => this.reservations = r,
+      error: () => {}
+    });
   }
 
   // ===== STATS DASHBOARD =====
@@ -193,8 +197,9 @@ export class AdminComponent implements OnInit {
     this.imageFile = null;
     this.imageMode = 'upload';
     setTimeout(() => {
-      this.voyageFormRef?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+      const el = document.querySelector('.admin-form-panel') as HTMLElement;
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   }
 
   editVoyage(v: Voyage): void {

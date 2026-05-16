@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { VoyageService } from '../../services/voyage.service';
 import { MockDataService } from '../../services/mock-data.service';
 import { AuthService } from '../../services/auth.service';
+import { ReviewService } from '../../services/review.service';
 import { Voyage, Destination, VoyageSearchParams } from '../../models/models';
 
 @Component({
@@ -53,6 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private voyageService: VoyageService,
     private mockData: MockDataService,
     public authService: AuthService,
+    public reviewService: ReviewService,
     private router: Router
   ) {}
 

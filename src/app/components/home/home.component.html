@@ -30,7 +30,7 @@
 
   <div class="hero-stats section-wrapper">
     <div class="hero-stat">
-      <strong>12K<span>+</span></strong>
+      <strong>{{ reviewService.totalTravelers() | number:'1.0-0' }}<span>+</span></strong>
       <span>{{ 'home.statTravelers' | translate }}</span>
     </div>
     <div class="hero-stat">
@@ -38,7 +38,7 @@
       <span>{{ 'home.statDestinations' | translate }}</span>
     </div>
     <div class="hero-stat">
-      <strong>4.9<span>★</span></strong>
+      <strong>{{ reviewService.averageRating() }}<span>★</span></strong>
       <span>{{ 'home.statRating' | translate }}</span>
     </div>
     <div class="hero-stat">

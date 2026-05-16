@@ -9,6 +9,7 @@ import { VerifyEmailComponent } from './components/auth/verify-email/verify-emai
 import { ReservationsComponent } from './components/reservations/reservations.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AssuresComponent } from './components/assures/assures.component';
+import { AvisComponent } from './components/avis/avis.component';
 import { authGuard, adminGuard, guestGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -36,6 +37,7 @@ const routes: Routes = [
     canActivate: [authGuard, adminGuard],
     title: 'Voyageur — Suivi Assurés'
   },
+  { path: 'avis', component: AvisComponent, title: 'Voyageur — Avis clients' },
   { path: '**', redirectTo: '' }
 ];
 

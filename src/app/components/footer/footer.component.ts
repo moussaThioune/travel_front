@@ -27,6 +27,7 @@ import { Component } from '@angular/core';
           <li><a routerLink="/voyages">{{ 'footer.ourVoyages' | translate }}</a></li>
           <li><a routerLink="/destinations">{{ 'footer.destinations' | translate }}</a></li>
           <li><a routerLink="/mes-reservations">{{ 'footer.myReservations' | translate }}</a></li>
+          <li><a routerLink="/avis">Avis clients ⭐</a></li>
           <li><a routerLink="/inscription">{{ 'footer.createAccount' | translate }}</a></li>
         </ul>
       </div>
