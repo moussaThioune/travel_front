@@ -8,11 +8,11 @@
 
     <!-- Desktop + Mobile links -->
     <div class="nav-links" [class.open]="isMenuOpen">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
-      <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()">Voyages</a>
-      <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()">Destinations</a>
-      <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">Mes Réservations</a>
-      <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()" style="color: black;">Accueil</a>
+      <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()" style="color: black;">Voyages</a>
+      <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()" style="color: black;">Destinations</a>
+      <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()" style="color: black;">Mes Réservations</a>
+      <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()" style="color: black;">
         <i class="bi bi-gear-fill me-1"></i>Admin
       </a>
     </div>
@@ -31,7 +31,7 @@
         <div class="notif-panel" *ngIf="showNotifPanel">
           <div class="notif-header">
             <span class="notif-panel-title">Notifications</span>
-            <button class="notif-mark-all" (click)="notifService.markAllRead()">Tout lire</button>
+            <button class="notif-mark-all" (click)="notifService.markAllRead()" style="color: black;">Tout lire</button>
           </div>
           <div class="notif-list">
             <div class="notif-empty" *ngIf="!notifications.length">
@@ -48,15 +48,15 @@
             </div>
           </div>
           <div class="notif-footer">
-            <a routerLink="/mes-reservations" (click)="closeDropdowns()">Voir mes réservations →</a>
+            <a routerLink="/mes-reservations" (click)="closeDropdowns()" style="color: black;">Voir mes réservations →</a>
           </div>
         </div>
       </div>
 
       <!-- Auth buttons (not logged in) -->
       <ng-container *ngIf="!authService.isLoggedIn()">
-        <a routerLink="/connexion" class="btn-login-nav">Se connecter</a>
-        <a routerLink="/inscription" class="btn-voyageur btn-voyageur-gold btn-voyageur-sm">S'inscrire</a>
+        <a routerLink="/connexion" class="btn-login-nav" style="color: black;">Se connecter</a>
+        <a routerLink="/inscription" class="btn-voyageur btn-voyageur-gold btn-voyageur-sm" style="color: black;">S'inscrire</a>
       </ng-container>
 
       <!-- User avatar (logged in) -->
