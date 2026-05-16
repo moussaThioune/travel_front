@@ -13,7 +13,7 @@ import { NotificationService } from '../../../services/notification.service';
       <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=85" alt="inscription">
       <div class="av-overlay"></div>
       <div class="av-content">
-        <h2>Commencez votre<br><em>aventure</em> avec nous</h2>
+        <h2>Commencez votre<br><em>aventure</em> avec Yvas</h2>
         <p>Rejoignez plus de 12 000 voyageurs et accédez à des destinations d'exception à prix exclusifs.</p>
         <ul class="av-perks">
           <li><span>✓</span> Réservation en quelques clics</li>
