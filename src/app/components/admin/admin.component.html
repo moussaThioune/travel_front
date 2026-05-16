@@ -75,7 +75,7 @@
         </div>
         <div class="stat-card gold">
           <div class="sc-icon">💰</div>
-          <div class="sc-num">{{ dashStats.revenuTotal | number:'1.0-0' }}<small> €</small></div>
+          <div class="sc-num">{{ dashStats.revenuTotal | number:'1.0-0' }}<small> CFA</small></div>
           <div class="sc-label">Revenu total</div>
           <div class="sc-sub">Paiements validés</div>
         </div>
@@ -134,7 +134,7 @@
               <td><code>{{ r.numeroReservation }}</code></td>
               <td>{{ r.client.firstName }} {{ r.client.lastName }}</td>
               <td>{{ r.voyage.titre }}</td>
-              <td>{{ r.prixTotal | number:'1.0-0' }} €</td>
+              <td>{{ r.prixTotal | number:'1.0-0' }} CFA</td>
               <td><span class="status-badge" [class]="statutClass(r.statut)">{{ statutLabel(r.statut) }}</span></td>
               <td>{{ r.dateReservation | date:'dd/MM/yy':'':'fr' }}</td>
             </tr>
@@ -327,7 +327,7 @@
               <td>{{ p.clientNom }}<br><small>{{ p.clientEmail }}</small></td>
               <td>{{ p.phoneNumber || p.clientPhone || '—' }}</td>
               <td>{{ p.voyageTitre }}<br><small>{{ p.voyageDestination }}</small></td>
-              <td class="amount-cell">{{ p.montant | number:'1.0-0' }} {{ isMobile(p.modePaiement) ? 'FCFA' : '€' }}</td>
+              <td class="amount-cell">{{ p.montant | number:'1.0-0' }} {{ isMobile(p.modePaiement) ? 'FCFA' : 'CFA' }}</td>
               <td><span class="status-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutIcon(p.statut) }} {{ pmtStatutLabel(p.statut) }}</span></td>
               <td>{{ p.datePaiement | date:'dd/MM/yy HH:mm' }}</td>
               <td>
@@ -364,10 +364,10 @@
               <td>{{ r.client.firstName }} {{ r.client.lastName }}<br><small>{{ r.client.email }}</small></td>
               <td>{{ r.voyage.titre }}<br><small>{{ r.voyage.destination }}</small></td>
               <td style="text-align:center">{{ r.nombrePersonnes }}</td>
-              <td>{{ r.prixTotal | number:'1.0-0' }} €</td>
+              <td>{{ r.prixTotal | number:'1.0-0' }} CFA</td>
               <td>
                 <span [class.text-teal]="r.montantPaye >= r.prixTotal" [class.text-coral]="r.montantPaye < r.prixTotal">
-                  {{ r.montantPaye | number:'1.0-0' }} €
+                  {{ r.montantPaye | number:'1.0-0' }} CFA
                 </span>
               </td>
               <td><span class="status-badge" [class]="statutClass(r.statut)">{{ statutLabel(r.statut) }}</span></td>
@@ -399,7 +399,7 @@
               <td>{{ c.email }}</td>
               <td>{{ c.phone || '—' }}</td>
               <td style="text-align:center"><span class="count-badge">{{ c.nbRes }}</span></td>
-              <td>{{ c.totalPaye | number:'1.0-0' }} €</td>
+              <td>{{ c.totalPaye | number:'1.0-0' }} CFA</td>
             </tr>
             <tr *ngIf="!clientsList.length"><td colspan="5" class="empty-row">Aucun client</td></tr>
           </tbody>
@@ -436,7 +436,7 @@
             <div class="form-group"><label class="form-label">Date retour</label><input type="date" class="form-control" [(ngModel)]="form.dateRetour"></div>
           </div>
           <div class="grid-2">
-            <div class="form-group"><label class="form-label">Prix / personne (€)</label><input type="number" class="form-control" [(ngModel)]="form.prixParPersonne"></div>
+            <div class="form-group"><label class="form-label">Prix / personne (CFA)</label><input type="number" class="form-control" [(ngModel)]="form.prixParPersonne"></div>
             <div class="form-group"><label class="form-label">Nombre de places</label><input type="number" class="form-control" [(ngModel)]="form.nombrePlacesTotal"></div>
           </div>
           <div class="form-group"><label class="form-label">URL image</label><input type="text" class="form-control" [(ngModel)]="form.imageUrl" placeholder="https://…"></div>
@@ -504,7 +504,7 @@
               <td><div class="vt-cell"><img [src]="v.imageUrl" class="vt-thumb" [alt]="v.titre"><span>{{ v.titre }}</span></div></td>
               <td>{{ v.destination }}, {{ v.paysDestination }}</td>
               <td>{{ v.dateDepart | date:'d MMM yy':'':'fr' }}</td>
-              <td>{{ v.prixParPersonne | number:'1.0-0' }} €</td>
+              <td>{{ v.prixParPersonne | number:'1.0-0' }} CFA</td>
               <td><span [class.text-coral]="v.nombrePlacesDisponibles <= 2">{{ v.nombrePlacesDisponibles }}/{{ v.nombrePlacesTotal }}</span></td>
               <td><span class="status-badge confirmed">{{ v.statut }}</span></td>
               <td>
@@ -562,7 +562,7 @@
         <div class="ms-title">💳 Paiements</div>
         <div *ngFor="let p of getPaiementsForRes(selectedReservation.id)" class="pmt-row">
           <span>{{ modeLabel(p.modePaiement) }}</span>
-          <span>{{ p.montant | number:'1.0-0' }} €</span>
+          <span>{{ p.montant | number:'1.0-0' }} CFA</span>
           <span class="status-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutLabel(p.statut) }}</span>
           <span style="font-size:12px;color:var(--gray)">{{ p.datePaiement | date:'dd/MM/yy HH:mm' }}</span>
         </div>

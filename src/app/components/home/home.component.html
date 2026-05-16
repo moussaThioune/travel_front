@@ -181,7 +181,7 @@
         <div class="dest-info">
           <span class="dest-tag" *ngIf="destinations[0]?.tag">{{ destinations[0].tag }}</span>
           <h3>{{ destinations[0]?.name }}, {{ destinations[0]?.country }}</h3>
-          <p>À partir de <strong>{{ destinations[0]?.minPrice | number:'1.0-0' }} €</strong>/pers.</p>
+          <p>À partir de <strong>{{ destinations[0]?.minPrice | number:'1.0-0' }} CFA</strong>/pers.</p>
         </div>
       </div>
       <div class="dest-grid">
@@ -192,7 +192,7 @@
           <div class="dest-info">
             <span class="dest-tag" *ngIf="dest.tag">{{ dest.tag }}</span>
             <h3>{{ dest.name }}</h3>
-            <p>Dès <strong>{{ dest.minPrice | number:'1.0-0' }} €</strong></p>
+            <p>Dès <strong>{{ dest.minPrice | number:'1.0-0' }} CFA</strong></p>
           </div>
         </div>
       </div>

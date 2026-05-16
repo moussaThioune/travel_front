@@ -82,7 +82,7 @@
         <button (click)="searchParams.destination=''; applyFilters()"><i class="bi bi-x"></i></button>
       </span>
       <span class="filter-tag" *ngIf="searchParams.prixMax">
-        💰 ≤ {{ searchParams.prixMax | number:'1.0-0' }}€
+        💰 ≤ {{ searchParams.prixMax | number:'1.0-0' }} FCFA
         <button (click)="searchParams.prixMax=undefined; applyFilters()"><i class="bi bi-x"></i></button>
       </span>
       <span class="filter-tag" *ngIf="selectedCategory">

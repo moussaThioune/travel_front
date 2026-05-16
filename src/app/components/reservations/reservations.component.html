@@ -26,7 +26,7 @@
       <span>En attente</span>
     </div>
     <div class="rsb-stat">
-      <strong>{{ stats.totalSpent | number:'1.0-0' }} €</strong>
+      <strong>{{ stats.totalSpent | number:'1.0-0' }} CFA</strong>
       <span>Total dépensé</span>
     </div>
   </div>
@@ -67,7 +67,7 @@
           </div>
           <div class="rc-right">
             <span class="status-badge" [class]="statutClass(res.statut)">{{ statutLabel(res.statut) }}</span>
-            <div class="rc-total">{{ res.prixTotal | number:'1.0-0' }} €</div>
+            <div class="rc-total">{{ res.prixTotal | number:'1.0-0' }} CFA</div>
             <i class="bi" [class.bi-chevron-down]="openCardId !== res.id" [class.bi-chevron-up]="openCardId === res.id"></i>
           </div>
         </div>
@@ -102,20 +102,20 @@
               <div class="payment-block">
                 <div class="pb-row">
                   <span>Total</span>
-                  <strong>{{ res.prixTotal | number:'1.0-0' }} €</strong>
+                  <strong>{{ res.prixTotal | number:'1.0-0' }} CFA</strong>
                 </div>
                 <div class="pb-row">
                   <span>Payé</span>
-                  <strong class="text-teal">{{ res.montantPaye | number:'1.0-0' }} €</strong>
+                  <strong class="text-teal">{{ res.montantPaye | number:'1.0-0' }} CFA</strong>
                 </div>
                 <div class="pb-row" *ngIf="res.montantRestant > 0">
                   <span>Restant</span>
-                  <strong class="text-coral">{{ res.montantRestant | number:'1.0-0' }} €</strong>
+                  <strong class="text-coral">{{ res.montantRestant | number:'1.0-0' }} CFA</strong>
                 </div>
                 <div class="pb-progress">
                   <div class="pb-progress-label">
                     <span>{{ paidPercent(res) }}% payé</span>
-                    <span>{{ res.prixTotal | number:'1.0-0' }} €</span>
+                    <span>{{ res.prixTotal | number:'1.0-0' }} CFA</span>
                   </div>
                   <div class="progress-voyageur">
                     <div class="progress-fill" [style.width.%]="paidPercent(res)"></div>
@@ -135,7 +135,7 @@
                     </span>
                   </div>
                   <div class="pmt-row-right">
-                    <span class="pmt-amount">{{ p.montant | number:'1.0-0' }} {{ isMobile(p.modePaiement) ? 'FCFA' : '€' }}</span>
+                    <span class="pmt-amount">{{ p.montant | number:'1.0-0' }} {{ isMobile(p.modePaiement) ? 'FCFA' : 'CFA' }}</span>
                     <span class="status-badge sm-badge" [class]="pmtStatutClass(p.statut)">{{ pmtStatutLabel(p.statut) }}</span>
                   </div>
                 </div>

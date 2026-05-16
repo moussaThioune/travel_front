@@ -26,7 +26,7 @@
       </div>
       <div class="detail-price-badge">
         <div class="dpb-from">À partir de</div>
-        <div class="dpb-price">{{ voyage.prixParPersonne | number:'1.0-0' }} <span>€</span></div>
+        <div class="dpb-price">{{ voyage.prixParPersonne | number:'1.0-0' }} <span>CFA</span></div>
         <div class="dpb-per">/ personne</div>
         <button class="btn-voyageur btn-voyageur-gold btn-voyageur-lg" (click)="startBooking()">
           Réserver <i class="bi bi-arrow-right ms-1"></i>
@@ -83,7 +83,7 @@
       <div class="booking-header">
         <div class="bp-price-display">
           <span class="bp-from">Prix par personne</span>
-          <strong>{{ voyage.prixParPersonne | number:'1.0-0' }} €</strong>
+          <strong>{{ voyage.prixParPersonne | number:'1.0-0' }} CFA</strong>
         </div>
         <div class="avail-track mt-2">
           <div class="avail-bar" [class]="availClass" [style.width.%]="availPct"></div>
@@ -125,7 +125,7 @@
         </div>
         <div class="booking-total">
           <span>Total estimé</span>
-          <strong>{{ totalPrice | number:'1.0-0' }} €</strong>
+          <strong>{{ totalPrice | number:'1.0-0' }} CFA</strong>
         </div>
         <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-md mt-3" (click)="goStep(2)">
           Continuer <i class="bi bi-arrow-right ms-1"></i>
@@ -145,7 +145,7 @@
           <div class="sr-row"><span>👥 Voyageurs</span><strong>{{ nbPersonnes }}</strong></div>
           <div class="sr-row"><span>🛏️ Chambre</span><strong>{{ typeHebergement | titlecase }}</strong></div>
           <div class="sr-row" *ngIf="voyage.hotel"><span>🏨 Hôtel</span><strong>{{ voyage.hotel.nom }}</strong></div>
-          <div class="sr-row total"><span>💰 Total</span><strong>{{ totalPrice | number:'1.0-0' }} €</strong></div>
+          <div class="sr-row total"><span>💰 Total</span><strong>{{ totalPrice | number:'1.0-0' }} CFA</strong></div>
         </div>
         <button class="btn-voyageur btn-voyageur-teal btn-voyageur-full btn-voyageur-md" (click)="goStep(3)">
           Choisir le paiement <i class="bi bi-arrow-right ms-1"></i>
@@ -215,7 +215,7 @@
         <!-- PayPal -->
         <div class="paypal-box" *ngIf="payMethod === 'paypal'">
           <i class="bi bi-paypal" style="font-size:36px;color:#003087"></i>
-          <p>Vous serez redirigé vers PayPal pour finaliser le paiement de <strong>{{ totalPrice | number:'1.0-0' }} €</strong>.</p>
+          <p>Vous serez redirigé vers PayPal pour finaliser le paiement de <strong>{{ totalPrice | number:'1.0-0' }} CFA</strong>.</p>
         </div>
 
         <!-- Virement -->
@@ -307,7 +307,7 @@
                 (click)="processPayment()"
                 [disabled]="processing || !canProceedPayment()">
           <span *ngIf="!processing">
-            <ng-container *ngIf="!isMobileMoney">Payer {{ totalPrice | number:'1.0-0' }} € <i class="bi bi-lock-fill ms-1"></i></ng-container>
+            <ng-container *ngIf="!isMobileMoney">Payer {{ totalPrice | number:'1.0-0' }} CFA <i class="bi bi-lock-fill ms-1"></i></ng-container>
             <ng-container *ngIf="isMobileMoney && otpVerified">Confirmer {{ totalPrice | number:'1.0-0' }} FCFA <i class="bi bi-lock-fill ms-1"></i></ng-container>
             <ng-container *ngIf="isMobileMoney && !otpVerified">Vérifiez le code OTP d'abord</ng-container>
           </span>

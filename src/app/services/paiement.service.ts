@@ -82,7 +82,7 @@ export class PaiementService {
             'info'
           );
         } else {
-          this.notif.show('✅', 'Paiement reçu!', `${p.montant.toLocaleString('fr-FR')} € confirmé.`, 'success');
+          this.notif.show('✅', 'Paiement reçu!', `${p.montant.toLocaleString('fr-FR')} CFA confirmé.`, 'success');
         }
       })
     );
