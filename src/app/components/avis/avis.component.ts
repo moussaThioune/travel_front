@@ -225,17 +225,22 @@ export class AvisComponent {
     if (Object.keys(this.errors).length) return;
 
     this.loading = true;
-    setTimeout(() => {
-      this.reviewService.submit({
-        nom: this.form.nom.trim(),
-        note: this.form.note,
-        commentaire: this.form.commentaire.trim(),
-        voyage: this.form.voyage.trim() || undefined
-      });
-      this.loading = false;
-      this.submitted = true;
-      this.notif.show('⭐', 'Avis publié !', 'Merci pour votre retour.', 'success');
-    }, 600);
+    this.reviewService.submit({
+      nom: this.form.nom.trim(),
+      note: this.form.note,
+      commentaire: this.form.commentaire.trim(),
+      voyage: this.form.voyage.trim() || undefined
+    }).subscribe({
+      next: () => {
+        this.loading = false;
+        this.submitted = true;
+        this.notif.show('⭐', 'Avis publié !', 'Merci pour votre retour.', 'success');
+      },
+      error: () => {
+        this.loading = false;
+        this.notif.show('❌', 'Erreur', 'Impossible de publier votre avis. Réessayez.', 'error');
+      }
+    });
   }
 
   reset(): void {
