@@ -21,7 +21,7 @@ export class AdminComponent implements OnInit {
   voyages: Voyage[] = [];
   reservations: Reservation[] = [];
 
-  showVoyageForm = false;
+  showVoyageForm = signal(false);
   editingVoyage: Voyage | null = null;
   savingVoyage = false;
   form: Partial<VoyageCreateRequest> = this.emptyForm();
@@ -190,7 +190,7 @@ export class AdminComponent implements OnInit {
 
   // ===== VOYAGES CRUD =====
   openCreateForm(): void {
-    this.showVoyageForm = true;
+    this.showVoyageForm.set(true);
     this.editingVoyage = null;
     this.form = this.emptyForm();
     this.imagePreview = '';
@@ -208,11 +208,11 @@ export class AdminComponent implements OnInit {
     this.imagePreview = v.imageUrl || '';
     this.imageFile = null;
     this.imageMode = v.imageUrl ? 'url' : 'upload';
-    this.showVoyageForm = true;
+    this.showVoyageForm.set(true);
   }
 
   cancelForm(): void {
-    this.showVoyageForm = false;
+    this.showVoyageForm.set(false);
     this.editingVoyage = null;
     this.form = this.emptyForm();
     this.imagePreview = '';
