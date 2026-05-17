@@ -13,6 +13,7 @@ import { NouvelAssureComponent } from './components/assures/nouvel-assure/nouvel
 import { ImportAssureComponent } from './components/assures/import-assure/import-assure.component';
 import { AvisComponent } from './components/avis/avis.component';
 import { VolsComponent } from './components/vols/vols.component';
+import { MesDemandesVolsComponent } from './components/mes-demandes-vols/mes-demandes-vols.component';
 import { authGuard, adminGuard, guestGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -54,6 +55,7 @@ const routes: Routes = [
   },
   { path: 'avis', component: AvisComponent, title: 'Voyageur — Avis clients' },
   { path: 'vols', component: VolsComponent, title: 'Voyageur — Recherche de vols' },
+  { path: 'mes-demandes-vols', component: MesDemandesVolsComponent, canActivate: [authGuard], title: 'Voyageur — Mes demandes de vols' },
   { path: '**', redirectTo: '' }
 ];
 

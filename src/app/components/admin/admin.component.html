@@ -43,6 +43,10 @@
       <button [class.active]="activeTab === 'assures'" (click)="activeTab = 'assures'" class="assures-nav-btn">
         <i class="bi bi-car-front-fill"></i> Assurés
       </button>
+      <button [class.active]="activeTab === 'vols'" (click)="setActiveTabVols()" class="vols-nav-btn">
+        <i class="bi bi-airplane-engines-fill"></i> Vols
+        <span class="vols-badge" *ngIf="demandeVolService.allDemandes().length">{{ demandeVolService.allDemandes().length }}</span>
+      </button>
     </nav>
 
     <div class="as-user">
@@ -522,6 +526,164 @@
     <!-- ===== ASSURÉS TAB ===== -->
     <div *ngIf="activeTab === 'assures'" class="assures-tab-wrapper">
       <app-assures></app-assures>
+    </div>
+
+    <!-- ===== VOLS TAB ===== -->
+    <div *ngIf="activeTab === 'vols'" class="vols-admin-tab">
+      <div class="vat-header">
+        <h2><i class="bi bi-airplane-engines-fill me-2"></i>Demandes de vols</h2>
+        <button class="btn-voyageur btn-voyageur-outline btn-voyageur-sm" (click)="demandeVolService.loadAll()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+        </button>
+      </div>
+
+      <!-- Empty -->
+      <div class="vat-empty" *ngIf="!volsDemandes.length">
+        <i class="bi bi-inbox"></i>
+        <p>Aucune demande de vol pour le moment.</p>
+      </div>
+
+      <!-- Table -->
+      <div class="vat-table-wrap" *ngIf="volsDemandes.length">
+        <table class="vat-table">
+          <thead>
+            <tr>
+              <th>Réf.</th>
+              <th>Client</th>
+              <th>Itinéraire</th>
+              <th>Dates</th>
+              <th>Pax / Classe</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of volsDemandes; trackBy: trackById">
+              <td class="vat-ref">{{ d.numeroDemande }}</td>
+              <td>
+                <div class="vat-client-name">{{ d.clientNom }}</div>
+                <div class="vat-client-email">{{ d.clientEmail }}</div>
+              </td>
+              <td class="vat-route">
+                <strong>{{ d.origine }}</strong>
+                <i class="bi bi-arrow-right mx-1"></i>
+                <strong>{{ d.destination }}</strong>
+              </td>
+              <td>
+                <div>{{ volFormatDate(d.dateDepart) }}</div>
+                <div class="vat-return" *ngIf="d.dateRetour">{{ volFormatDate(d.dateRetour) }}</div>
+                <div class="vat-type">{{ d.typeVoyage }}</div>
+              </td>
+              <td>
+                <div>{{ d.totalPassagers }} passager(s)</div>
+                <div class="vat-class">{{ d.classeVoyage }}</div>
+              </td>
+              <td>
+                <span class="statut-badge" [ngClass]="demandeVolService.statutClass(d.statut)">
+                  {{ demandeVolService.statutLabel(d.statut) }}
+                </span>
+                <div class="vat-prix" *ngIf="d.prixTotal">{{ volFormatPrice(d.prixTotal) }}</div>
+              </td>
+              <td class="vat-actions">
+                <!-- Respond with pricing -->
+                <button class="vat-btn vat-btn-teal" *ngIf="d.statut === 'EN_ATTENTE' || d.statut === 'REPONSE_ENVOYEE'"
+                        (click)="openRepondre(d)" title="Répondre avec tarifs">
+                  <i class="bi bi-reply-fill"></i>
+                </button>
+                <!-- Validate after client acceptance -->
+                <button class="vat-btn vat-btn-success" *ngIf="d.statut === 'ACCEPTE'"
+                        (click)="validerVol(d)" [disabled]="processingVolId === d.id" title="Valider">
+                  <i class="bi bi-check-circle-fill"></i>
+                </button>
+                <!-- Mark as paid -->
+                <button class="vat-btn vat-btn-gold" *ngIf="d.statut === 'VALIDEE'"
+                        (click)="marquerVolPaye(d)" [disabled]="processingVolId === d.id" title="Marquer payé">
+                  <i class="bi bi-credit-card-fill"></i>
+                </button>
+                <!-- Issue ticket -->
+                <button class="vat-btn vat-btn-gold" *ngIf="d.statut === 'PAYE'"
+                        (click)="openBillet(d)" title="Émettre billet">
+                  <i class="bi bi-ticket-perforated-fill"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPONDRE MODAL -->
+    <div class="vadm-modal-backdrop" *ngIf="showRepondreModal" (click)="showRepondreModal = false">
+      <div class="vadm-modal" (click)="$event.stopPropagation()">
+        <div class="vadm-modal-header">
+          <h3>Répondre à la demande</h3>
+          <div class="vadm-route" *ngIf="selectedVol">{{ selectedVol.origine }} → {{ selectedVol.destination }}</div>
+          <button class="vadm-close" (click)="showRepondreModal = false"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="vadm-modal-body">
+          <div class="vadm-field">
+            <label>Compagnie aérienne *</label>
+            <input type="text" [(ngModel)]="reponseForm.compagnieAerienne" placeholder="Ex: Air Sénégal, Royal Air Maroc…">
+          </div>
+          <div class="vadm-row">
+            <div class="vadm-field">
+              <label>Prix / personne (FCFA) *</label>
+              <input type="number" [(ngModel)]="reponseForm.prixParPersonne" min="0">
+            </div>
+            <div class="vadm-field">
+              <label>Prix total (FCFA) *</label>
+              <input type="number" [(ngModel)]="reponseForm.prixTotal" min="0">
+            </div>
+          </div>
+          <div class="vadm-row">
+            <div class="vadm-field">
+              <label>Durée du vol</label>
+              <input type="text" [(ngModel)]="reponseForm.dureeVol" placeholder="Ex: 5h30">
+            </div>
+            <div class="vadm-field">
+              <label>Escales</label>
+              <input type="text" [(ngModel)]="reponseForm.escales" placeholder="Ex: Casablanca">
+            </div>
+          </div>
+          <div class="vadm-field">
+            <label>Notes pour le client</label>
+            <textarea [(ngModel)]="reponseForm.notesAdmin" rows="3" placeholder="Conditions tarifaires, bagages inclus…"></textarea>
+          </div>
+        </div>
+        <div class="vadm-modal-footer">
+          <button class="btn-voyageur btn-voyageur-outline btn-voyageur-sm" (click)="showRepondreModal = false">Annuler</button>
+          <button class="btn-voyageur btn-voyageur-teal btn-voyageur-sm" (click)="submitReponse()" [disabled]="processingVolId !== null">
+            <i class="bi bi-send me-2"></i>Envoyer au client
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BILLET MODAL -->
+    <div class="vadm-modal-backdrop" *ngIf="showBilletModal" (click)="showBilletModal = false">
+      <div class="vadm-modal" (click)="$event.stopPropagation()">
+        <div class="vadm-modal-header">
+          <h3>Émettre le billet</h3>
+          <div class="vadm-route" *ngIf="selectedVol">{{ selectedVol.clientNom }} — {{ selectedVol.origine }} → {{ selectedVol.destination }}</div>
+          <button class="vadm-close" (click)="showBilletModal = false"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="vadm-modal-body">
+          <div class="vadm-field">
+            <label>Numéro de billet *</label>
+            <input type="text" [(ngModel)]="billetForm.numeroBillet" placeholder="Ex: SN-2026-001234">
+          </div>
+          <div class="vadm-field">
+            <label>Notes (optionnel)</label>
+            <textarea [(ngModel)]="billetForm.notesAdmin" rows="2" placeholder="Instructions pour le client…"></textarea>
+          </div>
+        </div>
+        <div class="vadm-modal-footer">
+          <button class="btn-voyageur btn-voyageur-outline btn-voyageur-sm" (click)="showBilletModal = false">Annuler</button>
+          <button class="btn-voyageur btn-voyageur-gold btn-voyageur-sm" (click)="submitBillet()" [disabled]="!billetForm.numeroBillet || processingVolId !== null">
+            <i class="bi bi-ticket-perforated-fill me-2"></i>Émettre le billet
+          </button>
+        </div>
+      </div>
     </div>
 
   </main>

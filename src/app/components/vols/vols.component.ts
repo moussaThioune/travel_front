@@ -1,5 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { DemandeVolService } from '../../services/demande-vol.service';
+import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 export interface CalendarDay {
   date: Date;
@@ -91,7 +94,16 @@ export class VolsComponent implements OnInit {
     return this.returnDate ? this.formatDate(this.returnDate) : '';
   }
 
-  constructor(private router: Router) {}
+  submitting = false;
+  showNotesModal = false;
+  notesClient = '';
+
+  constructor(
+    private router: Router,
+    public authService: AuthService,
+    private demandeVolService: DemandeVolService,
+    private notifService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     // Set default departure date to today + 5 days
@@ -259,17 +271,53 @@ export class VolsComponent implements OnInit {
     if (!target.closest('.date-field') && !target.closest('.calendar-dropdown')) this.showCalendar = false;
   }
 
-  // =========== Search ===========
+  // =========== Submit ===========
   search(): void {
-    this.router.navigate(['/vols/resultats'], {
-      queryParams: {
-        from: this.from,
-        to: this.to,
-        depart: this.departDate?.toISOString().split('T')[0],
-        retour: this.returnDate?.toISOString().split('T')[0],
-        pax: this.totalPassengers,
-        classe: this.cabinClass,
-        type: this.tripType
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/connexion'], { queryParams: { redirect: '/vols' } });
+      return;
+    }
+    if (!this.to.trim()) {
+      this.notifService.show('⚠️', 'Destination manquante', 'Veuillez indiquer une destination.', 'error');
+      return;
+    }
+    if (!this.departDate) {
+      this.notifService.show('⚠️', 'Date manquante', 'Veuillez choisir une date de départ.', 'error');
+      return;
+    }
+    this.showNotesModal = true;
+  }
+
+  submitDemande(): void {
+    if (this.submitting) return;
+    this.submitting = true;
+    this.showNotesModal = false;
+
+    const req = {
+      origine: this.from,
+      destination: this.to,
+      dateDepart: this.departDate!.toISOString().split('T')[0],
+      dateRetour: this.returnDate ? this.returnDate.toISOString().split('T')[0] : null,
+      typeVoyage: this.tripType,
+      nbAdultes: this.adults,
+      nbEnfants: this.children,
+      nbBebes: this.infants,
+      classeVoyage: this.cabinClass,
+      volsDirects: this.directOnly,
+      aeroportsProximiteOrigine: this.nearbyFrom,
+      aeroportsProximiteDestination: this.nearbyTo,
+      notesClient: this.notesClient || undefined
+    };
+
+    this.demandeVolService.submit(req).subscribe({
+      next: () => {
+        this.notifService.show('✈️', 'Demande envoyée !', 'Vous recevrez une réponse par email sous 24h.', 'success');
+        this.submitting = false;
+        this.router.navigate(['/mes-demandes-vols']);
+      },
+      error: () => {
+        this.notifService.show('❌', 'Erreur', 'Erreur lors de l\'envoi. Veuillez réessayer.', 'error');
+        this.submitting = false;
       }
     });
   }

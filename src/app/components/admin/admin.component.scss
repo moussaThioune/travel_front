@@ -269,3 +269,196 @@
     padding: 28px 32px;
   }
 }
+
+// ===== VOLS TAB =====
+.vols-nav-btn {
+  position: relative;
+  .vols-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--coral);
+    color: #fff;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+}
+
+.vols-admin-tab {
+  padding: 8px 0;
+}
+
+.vat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  h2 { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--ink); }
+}
+
+.vat-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray);
+  i { font-size: 48px; display: block; margin-bottom: 12px; color: var(--gray-light); }
+}
+
+.vat-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.vat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    background: #f8f9fa;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8f9fa; }
+}
+
+.vat-ref { font-family: monospace; font-size: 12px; color: var(--gray); }
+.vat-client-name { font-weight: 700; color: var(--ink); }
+.vat-client-email { font-size: 11px; color: var(--gray); }
+.vat-route { white-space: nowrap; font-weight: 500; }
+.vat-return { font-size: 11px; color: var(--gray); }
+.vat-type { font-size: 11px; color: var(--teal); font-style: italic; }
+.vat-class { font-size: 11px; color: var(--gray); }
+.vat-prix { font-size: 12px; font-weight: 700; color: var(--teal); margin-top: 4px; }
+
+.vat-actions { display: flex; gap: 6px; }
+
+.vat-btn {
+  width: 32px; height: 32px;
+  border: none;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: default; }
+
+  &.vat-btn-teal { background: var(--teal-light); color: var(--teal); &:hover:not(:disabled) { background: var(--teal); color: #fff; } }
+  &.vat-btn-success { background: #d1e7dd; color: #0a3622; &:hover:not(:disabled) { background: #0a3622; color: #fff; } }
+  &.vat-btn-gold { background: rgba(201,168,76,0.15); color: #8a6310; &:hover:not(:disabled) { background: var(--gold); color: #fff; } }
+}
+
+// Statut badges (shared across vols tabs)
+.statut-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &.badge-warning { background: #fff3cd; color: #856404; }
+  &.badge-info    { background: #cff4fc; color: #055160; }
+  &.badge-teal    { background: var(--teal-light); color: var(--teal); }
+  &.badge-danger  { background: #f8d7da; color: #842029; }
+  &.badge-success { background: #d1e7dd; color: #0a3622; }
+  &.badge-gold    { background: rgba(201,168,76,0.15); color: #8a6310; }
+}
+
+// Admin modals
+.vadm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vadm-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.vadm-modal-header {
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  color: #fff;
+  padding: 20px 24px;
+  position: relative;
+
+  h3 { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .vadm-route { font-size: 13px; opacity: 0.85; }
+
+  .vadm-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.15);
+    border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #fff; font-size: 13px;
+    &:hover { background: rgba(255,255,255,0.25); }
+  }
+}
+
+.vadm-modal-body {
+  padding: 20px 24px;
+
+  .vadm-field {
+    margin-bottom: 14px;
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--gray); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      &:focus { border-color: var(--teal); }
+    }
+    textarea { resize: vertical; }
+  }
+
+  .vadm-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    .vadm-field { margin-bottom: 0; }
+    margin-bottom: 14px;
+  }
+}
+
+.vadm-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

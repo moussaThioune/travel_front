@@ -102,6 +102,9 @@
               <i class="bi bi-calendar-check"></i> {{ 'nav.myReservations' | translate }}
               <span class="ud-count">{{ reservationService.myReservations().length }}</span>
             </a>
+            <a routerLink="/mes-demandes-vols" (click)="closeDropdowns()">
+              <i class="bi bi-airplane-fill"></i> Mes demandes de vols
+            </a>
             <a routerLink="/profil" (click)="closeDropdowns()">
               <i class="bi bi-person"></i> {{ 'nav.profile' | translate }}
             </a>

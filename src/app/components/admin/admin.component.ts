@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { VoyageService } from '../../services/voyage.service';
 import { ReservationService } from '../../services/reservation.service';
 import { PaiementService } from '../../services/paiement.service';
 import { MobileMoneyService } from '../../services/mobile-money.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { DemandeVolService, DemandeVol, ReponseAdminRequest, BilletRequest } from '../../services/demande-vol.service';
 import { Voyage, Reservation, Paiement, VoyageCreateRequest, ReservationStatut } from '../../models/models';
 
-type AdminTab = 'dashboard' | 'reservations' | 'paiements' | 'mobile_money' | 'voyages' | 'clients' | 'assures';
+type AdminTab = 'dashboard' | 'reservations' | 'paiements' | 'mobile_money' | 'voyages' | 'clients' | 'assures' | 'vols';
 
 @Component({
   selector: 'app-admin',
@@ -49,6 +50,14 @@ export class AdminComponent implements OnInit {
   validatingId = 0;
   rejectingActionId = 0;
 
+  // ===== VOLS ADMIN =====
+  showRepondreModal = false;
+  showBilletModal = false;
+  selectedVol: DemandeVol | null = null;
+  reponseForm: ReponseAdminRequest = { compagnieAerienne: '', prixParPersonne: 0, prixTotal: 0, dureeVol: '', escales: '', notesAdmin: '' };
+  billetForm: BilletRequest = { numeroBillet: '', notesAdmin: '' };
+  processingVolId: number | null = null;
+
   constructor(
     public voyageService: VoyageService,
     public reservationService: ReservationService,
@@ -56,6 +65,8 @@ export class AdminComponent implements OnInit {
     public mmService: MobileMoneyService,
     public authService: AuthService,
     private notifService: NotificationService,
+    public demandeVolService: DemandeVolService,
+    private route: ActivatedRoute,
     private router: Router
   ) {}
 
@@ -64,6 +75,10 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['/connexion']);
       return;
     }
+    // Check if deep-linked to vols tab
+    this.route.queryParams.subscribe(p => {
+      if (p['tab'] === 'vols') { this.activeTab = 'vols'; this.demandeVolService.loadAll(); }
+    });
     this.voyageService.getAll().subscribe({
       next: v => this.voyages = v.slice().reverse(),
       error: () => {}
@@ -332,4 +347,68 @@ export class AdminComponent implements OnInit {
     return this.mmService.getProvider(id);
   }
   trackById(i: number, item: any): number { return item.id; }
+
+  // ===== VOLS ADMIN METHODS =====
+  get volsDemandes(): DemandeVol[] { return this.demandeVolService.allDemandes(); }
+
+  setActiveTabVols(): void {
+    this.activeTab = 'vols';
+    this.demandeVolService.loadAll();
+  }
+
+  openRepondre(d: DemandeVol): void {
+    this.selectedVol = d;
+    this.reponseForm = { compagnieAerienne: d.compagnieAerienne ?? '', prixParPersonne: d.prixParPersonne ?? 0, prixTotal: d.prixTotal ?? 0, dureeVol: d.dureeVol ?? '', escales: d.escales ?? '', notesAdmin: d.notesAdmin ?? '' };
+    this.showRepondreModal = true;
+  }
+
+  submitReponse(): void {
+    if (!this.selectedVol || this.processingVolId) return;
+    this.processingVolId = this.selectedVol.id;
+    this.demandeVolService.repondre(this.selectedVol.id, this.reponseForm).subscribe({
+      next: () => { this.notifService.show('✅', 'Réponse envoyée', 'Le client a reçu votre offre par email.', 'success'); this.showRepondreModal = false; this.processingVolId = null; },
+      error: () => { this.notifService.show('❌', 'Erreur', 'Impossible d\'envoyer la réponse.', 'error'); this.processingVolId = null; }
+    });
+  }
+
+  validerVol(d: DemandeVol): void {
+    if (this.processingVolId) return;
+    this.processingVolId = d.id;
+    this.demandeVolService.valider(d.id).subscribe({
+      next: () => { this.notifService.show('✅', 'Demande validée', 'Le client est notifié pour le paiement.', 'success'); this.processingVolId = null; },
+      error: () => { this.notifService.show('❌', 'Erreur', 'Impossible de valider.', 'error'); this.processingVolId = null; }
+    });
+  }
+
+  marquerVolPaye(d: DemandeVol): void {
+    if (this.processingVolId) return;
+    this.processingVolId = d.id;
+    this.demandeVolService.marquerPaye(d.id).subscribe({
+      next: () => { this.notifService.show('💳', 'Marqué payé', 'Statut mis à jour.', 'success'); this.processingVolId = null; },
+      error: () => { this.processingVolId = null; }
+    });
+  }
+
+  openBillet(d: DemandeVol): void {
+    this.selectedVol = d;
+    this.billetForm = { numeroBillet: d.numeroBillet ?? '', notesAdmin: '' };
+    this.showBilletModal = true;
+  }
+
+  submitBillet(): void {
+    if (!this.selectedVol || this.processingVolId) return;
+    this.processingVolId = this.selectedVol.id;
+    this.demandeVolService.emettreTicket(this.selectedVol.id, this.billetForm).subscribe({
+      next: () => { this.notifService.show('🎫', 'Billet émis', 'Le client a reçu son billet par email.', 'success'); this.showBilletModal = false; this.processingVolId = null; },
+      error: () => { this.notifService.show('❌', 'Erreur', 'Impossible d\'émettre le billet.', 'error'); this.processingVolId = null; }
+    });
+  }
+
+  volFormatDate(d: string): string {
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  volFormatPrice(p: number | undefined): string {
+    if (!p) return '—';
+    return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+  }
 }

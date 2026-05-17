@@ -1,0 +1,191 @@
+<app-navbar></app-navbar>
+
+<div class="mdv-page section-wrapper">
+
+  <div class="mdv-header">
+    <h1><i class="bi bi-airplane-fill me-2"></i>Mes demandes de vols</h1>
+    <a routerLink="/vols" class="btn-voyageur btn-voyageur-teal btn-voyageur-sm">
+      <i class="bi bi-plus-lg me-1"></i>Nouvelle demande
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div class="mdv-loading" *ngIf="loading">
+    <div class="mdv-spinner"></div>
+    <p>Chargement de vos demandes…</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="mdv-empty" *ngIf="!loading && !demandes.length">
+    <i class="bi bi-airplane"></i>
+    <h3>Aucune demande de vol</h3>
+    <p>Vous n'avez pas encore soumis de demande de vol.</p>
+    <a routerLink="/vols" class="btn-voyageur btn-voyageur-teal btn-voyageur-md mt-3">
+      <i class="bi bi-search me-2"></i>Rechercher un vol
+    </a>
+  </div>
+
+  <!-- List -->
+  <div class="mdv-list" *ngIf="!loading && demandes.length">
+    <div class="mdv-card" *ngFor="let d of demandes" (click)="openDetail(d)">
+
+      <div class="mdv-card-header">
+        <div class="mdv-route">
+          <span class="mdv-city">{{ d.origine }}</span>
+          <i class="bi bi-arrow-right mx-2"></i>
+          <span class="mdv-city">{{ d.destination }}</span>
+        </div>
+        <span class="statut-badge" [ngClass]="demandeVolService.statutClass(d.statut)">
+          {{ demandeVolService.statutLabel(d.statut) }}
+        </span>
+      </div>
+
+      <div class="mdv-card-body">
+        <div class="mdv-meta">
+          <span><i class="bi bi-calendar3 me-1"></i>{{ formatDate(d.dateDepart) }}</span>
+          <span *ngIf="d.dateRetour"><i class="bi bi-calendar3-range me-1"></i>{{ formatDate(d.dateRetour) }}</span>
+          <span><i class="bi bi-people-fill me-1"></i>{{ d.totalPassagers }} passager(s)</span>
+          <span><i class="bi bi-briefcase me-1"></i>{{ d.classeVoyage }}</span>
+        </div>
+
+        <div class="mdv-ref">#{{ d.numeroDemande }}</div>
+
+        <!-- Pricing (if admin replied) -->
+        <div class="mdv-offer" *ngIf="d.statut === 'REPONSE_ENVOYEE'">
+          <div class="offer-badge">💼 Offre disponible</div>
+          <div class="offer-price">{{ formatPrice(d.prixTotal!) }}</div>
+          <div class="offer-detail">{{ d.compagnieAerienne }}
+            <span *ngIf="d.dureeVol"> · {{ d.dureeVol }}</span>
+          </div>
+          <div class="offer-actions" (click)="$event.stopPropagation()">
+            <button class="btn-voyageur btn-voyageur-teal btn-voyageur-sm" (click)="accepter(d)"
+                    [disabled]="processingId === d.id">
+              <i class="bi bi-check-lg me-1"></i>Accepter
+            </button>
+            <button class="btn-voyageur btn-voyageur-outline btn-voyageur-sm ms-2" (click)="rejeter(d)"
+                    [disabled]="processingId === d.id">
+              <i class="bi bi-x-lg me-1"></i>Refuser
+            </button>
+          </div>
+        </div>
+
+        <!-- Billet issued -->
+        <div class="mdv-billet" *ngIf="d.statut === 'BILLET_EMIS'">
+          <i class="bi bi-ticket-perforated-fill me-2"></i>
+          Billet : <strong>{{ d.numeroBillet }}</strong>
+        </div>
+
+        <!-- Validated → invite payment -->
+        <div class="mdv-payer" *ngIf="d.statut === 'VALIDEE'">
+          <i class="bi bi-credit-card me-2"></i>
+          Réservation confirmée — Contactez-nous pour procéder au paiement.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== DETAIL MODAL ====== -->
+<div class="mdv-modal-backdrop" *ngIf="selectedDemande" (click)="closeDetail()">
+  <div class="mdv-modal" (click)="$event.stopPropagation()">
+    <button class="mdv-modal-close" (click)="closeDetail()"><i class="bi bi-x-lg"></i></button>
+
+    <div class="mdv-modal-header">
+      <h2>{{ selectedDemande.origine }} → {{ selectedDemande.destination }}</h2>
+      <span class="statut-badge" [ngClass]="demandeVolService.statutClass(selectedDemande.statut)">
+        {{ demandeVolService.statutLabel(selectedDemande.statut) }}
+      </span>
+      <div class="mdv-modal-ref">#{{ selectedDemande.numeroDemande }}</div>
+    </div>
+
+    <div class="mdv-modal-body">
+
+      <!-- Request details -->
+      <div class="detail-section">
+        <h4>Détails de la demande</h4>
+        <div class="detail-grid">
+          <div class="detail-row">
+            <span>Type</span><strong>{{ selectedDemande.typeVoyage === 'aller-retour' ? 'Aller-retour' : 'Aller simple' }}</strong>
+          </div>
+          <div class="detail-row">
+            <span>Départ</span><strong>{{ formatDate(selectedDemande.dateDepart) }}</strong>
+          </div>
+          <div class="detail-row" *ngIf="selectedDemande.dateRetour">
+            <span>Retour</span><strong>{{ formatDate(selectedDemande.dateRetour) }}</strong>
+          </div>
+          <div class="detail-row">
+            <span>Passagers</span><strong>{{ selectedDemande.totalPassagers }} ({{ selectedDemande.nbAdultes }} ad.{{ selectedDemande.nbEnfants ? ', ' + selectedDemande.nbEnfants + ' enf.' : '' }}{{ selectedDemande.nbBebes ? ', ' + selectedDemande.nbBebes + ' bébé(s)' : '' }})</strong>
+          </div>
+          <div class="detail-row">
+            <span>Classe</span><strong>{{ selectedDemande.classeVoyage }}</strong>
+          </div>
+          <div class="detail-row" *ngIf="selectedDemande.volsDirects">
+            <span>Option</span><strong>Vols directs uniquement</strong>
+          </div>
+          <div class="detail-row" *ngIf="selectedDemande.notesClient">
+            <span>Notes</span><strong>{{ selectedDemande.notesClient }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin offer -->
+      <div class="detail-section offer-section" *ngIf="selectedDemande.compagnieAerienne">
+        <h4>Offre de vol</h4>
+        <div class="offer-highlight">
+          <div class="oh-price">{{ formatPrice(selectedDemande.prixTotal!) }}</div>
+          <div class="oh-info">
+            <strong>{{ selectedDemande.compagnieAerienne }}</strong>
+            <span *ngIf="selectedDemande.dureeVol"> · {{ selectedDemande.dureeVol }}</span>
+            <span *ngIf="selectedDemande.escales" class="oh-escales"> · Via {{ selectedDemande.escales }}</span>
+          </div>
+          <div class="oh-per-person">{{ formatPrice(selectedDemande.prixParPersonne!) }} / personne</div>
+          <div class="oh-notes" *ngIf="selectedDemande.notesAdmin">{{ selectedDemande.notesAdmin }}</div>
+        </div>
+
+        <!-- Accept / Reject buttons -->
+        <div class="offer-actions-modal" *ngIf="selectedDemande.statut === 'REPONSE_ENVOYEE'">
+          <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="accepter(selectedDemande)"
+                  [disabled]="processingId === selectedDemande.id">
+            <i class="bi bi-check-lg me-2"></i>Accepter les tarifs
+          </button>
+          <button class="btn-voyageur btn-voyageur-outline btn-voyageur-md" (click)="rejeter(selectedDemande)"
+                  [disabled]="processingId === selectedDemande.id">
+            <i class="bi bi-x-lg me-2"></i>Refuser
+          </button>
+        </div>
+      </div>
+
+      <!-- Ticket -->
+      <div class="detail-section billet-section" *ngIf="selectedDemande.numeroBillet">
+        <h4>Billet émis</h4>
+        <div class="billet-number">{{ selectedDemande.numeroBillet }}</div>
+        <p>Présentez ce numéro à l'aéroport ou contactez-nous pour votre e-ticket complet.</p>
+      </div>
+
+      <!-- Status info -->
+      <div class="detail-section status-info">
+        <div class="si-item" *ngIf="selectedDemande.statut === 'EN_ATTENTE'">
+          <i class="bi bi-clock-history"></i>
+          <span>Votre demande est en cours de traitement. Vous recevrez une réponse par email sous <strong>24 heures</strong>.</span>
+        </div>
+        <div class="si-item si-success" *ngIf="selectedDemande.statut === 'ACCEPTE'">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Tarifs acceptés. Notre équipe va valider votre réservation.</span>
+        </div>
+        <div class="si-item si-success" *ngIf="selectedDemande.statut === 'VALIDEE'">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Réservation confirmée ! Contactez-nous au <strong>+221 78 143 44 44</strong> pour procéder au paiement.</span>
+        </div>
+        <div class="si-item si-success" *ngIf="selectedDemande.statut === 'BILLET_EMIS'">
+          <i class="bi bi-ticket-perforated-fill"></i>
+          <span>Votre billet est prêt. Bon voyage ! ✈️</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

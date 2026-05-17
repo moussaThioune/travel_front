@@ -687,3 +687,113 @@
 
   .vols-breadcrumb { padding: 12px 20px; }
 }
+
+// ===== NOTES MODAL =====
+.notes-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.notes-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.nm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+
+  h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .nm-close {
+    width: 32px; height: 32px;
+    border: none;
+    background: var(--light-gray);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+    &:hover { background: var(--border); }
+  }
+}
+
+.nm-summary {
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  color: #fff;
+  padding: 16px 24px;
+}
+
+.nm-route {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.nm-details {
+  font-size: 13px;
+  opacity: 0.85;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nm-body {
+  padding: 20px 24px;
+
+  .nm-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .nm-textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus { border-color: var(--teal); }
+    &::placeholder { color: #b0b0b0; }
+  }
+}
+
+.nm-footer {
+  padding: 0 24px 24px;
+
+  .nm-note {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  button { width: 100%; justify-content: center; }
+}

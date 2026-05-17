@@ -139,9 +139,10 @@
           </div>
         </div>
 
-        <!-- Search button -->
-        <button class="sb-search-btn" (click)="search()">
-          <i class="bi bi-search me-2"></i>Rechercher
+        <!-- Search / Submit button -->
+        <button class="sb-search-btn" (click)="search()" [disabled]="submitting">
+          <span *ngIf="!submitting"><i class="bi bi-send me-2"></i>{{ authService.isLoggedIn() ? 'Envoyer ma demande' : 'Rechercher' }}</span>
+          <span *ngIf="submitting"><i class="bi bi-hourglass-split me-2"></i>Envoi…</span>
         </button>
 
       </div>
@@ -277,5 +278,40 @@
     </div>
   </div>
 </section>
+
+<!-- ====== NOTES MODAL (before submit) ====== -->
+<div class="notes-modal-backdrop" *ngIf="showNotesModal" (click)="showNotesModal = false">
+  <div class="notes-modal" (click)="$event.stopPropagation()">
+    <div class="nm-header">
+      <h3>Confirmer votre demande</h3>
+      <button class="nm-close" (click)="showNotesModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="nm-summary">
+      <div class="nm-route">{{ from }} → {{ to }}</div>
+      <div class="nm-details">
+        <span>{{ departLabel }}{{ returnDate ? ' — ' + returnLabel : '' }}</span>
+        <span>· {{ totalPassengers }} passager(s)</span>
+        <span>· {{ cabinClass }}</span>
+      </div>
+    </div>
+
+    <div class="nm-body">
+      <label class="nm-label">Remarques ou précisions (optionnel)</label>
+      <textarea [(ngModel)]="notesClient" rows="3" class="nm-textarea"
+        placeholder="Ex: bagages spéciaux, siège préféré, contraintes horaires…"></textarea>
+    </div>
+
+    <div class="nm-footer">
+      <p class="nm-note">
+        <i class="bi bi-info-circle me-1"></i>
+        Vous recevrez une réponse par email sous <strong>24h</strong> avec les disponibilités et tarifs.
+      </p>
+      <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="submitDemande()" [disabled]="submitting">
+        <i class="bi bi-send me-2"></i>Envoyer ma demande
+      </button>
+    </div>
+  </div>
+</div>
 
 <app-footer></app-footer>

@@ -1,0 +1,329 @@
+.mdv-page {
+  padding: 48px 60px 80px;
+  min-height: 70vh;
+
+  @media (max-width: 768px) { padding: 24px 20px 60px; }
+}
+
+.mdv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+}
+
+// Loading
+.mdv-loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--gray);
+
+  .mdv-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// Empty
+.mdv-empty {
+  text-align: center;
+  padding: 80px 20px;
+  i { font-size: 56px; color: var(--gray-light); display: block; margin-bottom: 16px; }
+  h3 { font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+  p { color: var(--gray); }
+}
+
+// Cards list
+.mdv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mdv-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+
+  &:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--teal); }
+}
+
+.mdv-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mdv-route {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.mdv-city { letter-spacing: 0.5px; }
+
+.mdv-card-body {}
+
+.mdv-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+
+.mdv-ref {
+  font-size: 12px;
+  color: var(--gray-light);
+  font-family: monospace;
+}
+
+// Offer
+.mdv-offer {
+  margin-top: 14px;
+  background: linear-gradient(135deg, var(--teal-light), rgba(26,107,107,0.05));
+  border: 1.5px solid var(--teal);
+  border-radius: 12px;
+  padding: 16px 20px;
+
+  .offer-badge {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--teal);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .offer-price {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--teal);
+  }
+
+  .offer-detail {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 12px;
+  }
+
+  .offer-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+
+// Billet
+.mdv-billet {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(201,168,76,0.05));
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--ink);
+  strong { font-family: monospace; letter-spacing: 1px; }
+}
+
+// Payer
+.mdv-payer {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(26,107,107,0.06);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+// Statut badges
+.statut-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+  &.badge-warning { background: #fff3cd; color: #856404; }
+  &.badge-info    { background: #cff4fc; color: #055160; }
+  &.badge-teal    { background: var(--teal-light); color: var(--teal); }
+  &.badge-danger  { background: #f8d7da; color: #842029; }
+  &.badge-success { background: #d1e7dd; color: #0a3622; }
+  &.badge-gold    { background: rgba(201,168,76,0.15); color: #8a6310; }
+}
+
+// ====== MODAL ======
+.mdv-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.mdv-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+}
+
+.mdv-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px; height: 36px;
+  background: var(--light-gray);
+  border: none;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 10;
+  transition: background 0.15s;
+
+  &:hover { background: var(--border); }
+}
+
+.mdv-modal-header {
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  color: #fff;
+  padding: 28px 24px 20px;
+  border-radius: 20px 20px 0 0;
+
+  h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .statut-badge { margin-bottom: 8px; }
+
+  .mdv-modal-ref {
+    font-size: 12px;
+    opacity: 0.7;
+    font-family: monospace;
+  }
+}
+
+.mdv-modal-body { padding: 24px; }
+
+.detail-section {
+  margin-bottom: 24px;
+
+  h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray);
+    margin-bottom: 12px;
+  }
+}
+
+.detail-grid {}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+
+  span { color: var(--gray); }
+  strong { color: var(--ink); }
+}
+
+// Offer highlight
+.offer-section {}
+
+.offer-highlight {
+  background: linear-gradient(135deg, var(--teal-light), rgba(26,107,107,0.05));
+  border: 2px solid var(--teal);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+
+  .oh-price { font-size: 28px; font-weight: 900; color: var(--teal); margin-bottom: 6px; }
+  .oh-info { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .oh-escales { color: var(--gold); }
+  .oh-per-person { font-size: 13px; color: var(--gray); margin-top: 4px; }
+  .oh-notes { margin-top: 12px; font-size: 13px; color: var(--gray); font-style: italic; }
+}
+
+.offer-actions-modal {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+// Billet section
+.billet-section {}
+
+.billet-number {
+  font-size: 28px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-align: center;
+  padding: 20px;
+  background: rgba(201,168,76,0.08);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+// Status info
+.status-info {}
+
+.si-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--ink);
+
+  i { font-size: 18px; color: var(--teal); flex-shrink: 0; margin-top: 1px; }
+
+  &.si-success { background: #d1e7dd; i { color: #0a3622; } }
+}
