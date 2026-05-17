@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { VoyageService } from '../../services/voyage.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -21,7 +21,7 @@ export class AdminComponent implements OnInit {
   voyages: Voyage[] = [];
   reservations: Reservation[] = [];
 
-  showVoyageForm = signal(false);
+  showVoyageForm = false;
   editingVoyage: Voyage | null = null;
   savingVoyage = false;
   form: Partial<VoyageCreateRequest> = this.emptyForm();
@@ -190,7 +190,7 @@ export class AdminComponent implements OnInit {
 
   // ===== VOYAGES CRUD =====
   openCreateForm(): void {
-    this.showVoyageForm.set(true);
+    this.showVoyageForm = true;
     this.editingVoyage = null;
     this.form = this.emptyForm();
     this.imagePreview = '';
@@ -208,11 +208,11 @@ export class AdminComponent implements OnInit {
     this.imagePreview = v.imageUrl || '';
     this.imageFile = null;
     this.imageMode = v.imageUrl ? 'url' : 'upload';
-    this.showVoyageForm.set(true);
+    this.showVoyageForm = true;
   }
 
   cancelForm(): void {
-    this.showVoyageForm.set(false);
+    this.showVoyageForm = false;
     this.editingVoyage = null;
     this.form = this.emptyForm();
     this.imagePreview = '';
