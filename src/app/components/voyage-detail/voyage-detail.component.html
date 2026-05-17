@@ -96,15 +96,47 @@
         <div class="step-progress"><div class="sp-fill" style="width:25%"></div></div>
         <div class="step-tag">Étape 1 / 4 — Voyageurs</div>
         <div class="form-voyageur">
+          <!-- Passagers -->
           <div class="form-group">
-            <label class="form-label">Nombre de personnes</label>
-            <select class="form-control" [(ngModel)]="nbPersonnes">
-              <option [ngValue]="1">1 personne</option>
-              <option [ngValue]="2">2 personnes</option>
-              <option [ngValue]="3">3 personnes</option>
-              <option [ngValue]="4">4 personnes</option>
-              <option [ngValue]="5">5 personnes</option>
-            </select>
+            <label class="form-label">Passagers</label>
+
+            <!-- Chips résumé -->
+            <div class="pax-chips" *ngIf="nbPersonnes > 0">
+              <span class="pax-chip" *ngFor="let t of activePassengerTypes">
+                {{ passengers[t.code] }} {{ t.code }}
+                <button class="pax-chip-remove" *ngIf="t.min === 0" (click)="removePassengerType(t.code)">×</button>
+              </span>
+            </div>
+
+            <!-- Rows par type actif -->
+            <div class="pax-rows">
+              <div class="pax-row" *ngFor="let t of activePassengerTypes">
+                <div class="pax-row-info">
+                  <span class="pax-row-label">{{ t.label }}</span>
+                  <span class="pax-row-code">{{ t.code }}</span>
+                </div>
+                <div class="pax-counter">
+                  <button class="pax-btn" (click)="decrement(t.code)" [disabled]="passengers[t.code] <= t.min">−</button>
+                  <span class="pax-count">{{ passengers[t.code] }}</span>
+                  <button class="pax-btn" (click)="increment(t.code)" [disabled]="nbPersonnes >= (voyage?.nombrePlacesDisponibles ?? 99)">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ajouter un type -->
+            <div class="pax-add-wrap" *ngIf="addablePassengerTypes.length > 0">
+              <button class="pax-add-btn" (click)="showPassengerDropdown = !showPassengerDropdown">
+                Ajouter le type de passager <span class="pax-add-arrow">{{ showPassengerDropdown ? '▲' : '▼' }}</span>
+              </button>
+              <div class="pax-dropdown" *ngIf="showPassengerDropdown">
+                <input type="text" class="pax-search" placeholder="Rechercher…" #paxSearch>
+                <div class="pax-dropdown-item" *ngFor="let t of addablePassengerTypes"
+                     (click)="addPassengerType(t.code)">
+                  <span class="pdi-label">{{ t.label }}</span>
+                  <span class="pdi-code">{{ t.code }}</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Type de chambre</label>
@@ -142,7 +174,7 @@
           <div class="sr-row"><span>✈️ Départ</span><strong>{{ voyage.dateDepart | date:'d MMM yyyy':'':'fr' }}</strong></div>
           <div class="sr-row"><span>🏠 Retour</span><strong>{{ voyage.dateRetour | date:'d MMM yyyy':'':'fr' }}</strong></div>
           <div class="sr-row"><span>⏱️ Durée</span><strong>{{ voyage.dureeJours }} jours</strong></div>
-          <div class="sr-row"><span>👥 Voyageurs</span><strong>{{ nbPersonnes }}</strong></div>
+          <div class="sr-row"><span>👥 Voyageurs</span><strong>{{ nbPersonnes }} ({{ passengersLabel }})</strong></div>
           <div class="sr-row"><span>🛏️ Chambre</span><strong>{{ typeHebergement | titlecase }}</strong></div>
           <div class="sr-row" *ngIf="voyage.hotel"><span>🏨 Hôtel</span><strong>{{ voyage.hotel.nom }}</strong></div>
           <div class="sr-row total"><span>💰 Total</span><strong>{{ totalPrice | number:'1.0-0' }} CFA</strong></div>

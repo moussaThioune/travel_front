@@ -11,6 +11,12 @@ import { NotificationService } from '../../services/notification.service';
 type PayMethod = 'card' | 'paypal' | 'virement' | 'orange_money' | 'wave' | 'free_money';
 type BookingStep = 1 | 2 | 3 | 4;
 
+interface PassengerType {
+  code: string;
+  label: string;
+  min: number;
+}
+
 @Component({
   selector: 'app-voyage-detail',
   templateUrl: './voyage-detail.component.html',
@@ -24,11 +30,60 @@ export class VoyageDetailComponent implements OnInit {
   bookingRef = '';
   currentReservationId = 0;
 
-  // Step 1
-  nbPersonnes = 1;
+  // Step 1 — passenger types
+  readonly passengerTypes: PassengerType[] = [
+    { code: 'ADT', label: 'Adulte',                  min: 1 },
+    { code: 'CNN', label: 'Enfant accompagné',        min: 0 },
+    { code: 'INF', label: 'Bébé sans siège',          min: 0 },
+    { code: 'INS', label: 'Bébé avec siège',          min: 0 },
+    { code: 'SRC', label: 'Retraité',                 min: 0 },
+    { code: 'CMP', label: 'Accompagnateur de voyage', min: 0 },
+    { code: 'STU', label: 'Étudiant',                 min: 0 },
+  ];
+
+  passengers: Record<string, number> = { ADT: 1, CNN: 0, INF: 0, INS: 0, SRC: 0, CMP: 0, STU: 0 };
+  showPassengerDropdown = false;
+
   typeHebergement = 'standard';
   passportNumber = '';
   notes = '';
+
+  get nbPersonnes(): number {
+    return Object.values(this.passengers).reduce((s, n) => s + n, 0);
+  }
+
+  get activePassengerTypes(): PassengerType[] {
+    return this.passengerTypes.filter(t => this.passengers[t.code] > 0);
+  }
+
+  get addablePassengerTypes(): PassengerType[] {
+    return this.passengerTypes.filter(t => this.passengers[t.code] === 0);
+  }
+
+  get passengersLabel(): string {
+    return this.activePassengerTypes
+      .map(t => `${this.passengers[t.code]} ${t.code}`)
+      .join(' · ');
+  }
+
+  increment(code: string): void {
+    const max = this.voyage?.nombrePlacesDisponibles ?? 99;
+    if (this.nbPersonnes < max) this.passengers[code]++;
+  }
+
+  decrement(code: string): void {
+    const type = this.passengerTypes.find(t => t.code === code)!;
+    if (this.passengers[code] > type.min) this.passengers[code]--;
+  }
+
+  addPassengerType(code: string): void {
+    this.passengers[code] = 1;
+    this.showPassengerDropdown = false;
+  }
+
+  removePassengerType(code: string): void {
+    this.passengers[code] = 0;
+  }
 
   // Step 3 - payment
   payMethod: PayMethod = 'orange_money';
@@ -73,7 +128,7 @@ export class VoyageDetailComponent implements OnInit {
     const pending = this.authService.getPendingBooking();
     if (!pending || pending.voyageId !== voyageId) return;
 
-    this.nbPersonnes = pending.nbPersonnes;
+    this.passengers['ADT'] = pending.nbPersonnes;
     this.typeHebergement = pending.typeHebergement;
     this.passportNumber = pending.passportNumber;
     this.notes = pending.notes;
