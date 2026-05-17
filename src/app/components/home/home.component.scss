@@ -464,6 +464,20 @@
   gap: 14px;
 }
 
+.testimonial-avatar-initiale {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--sand);
+}
 .testimonial-avatar {
   width: 48px;
   height: 48px;

@@ -30,23 +30,36 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentHeroImg = 0;
   private heroInterval?: ReturnType<typeof setInterval>;
 
-  readonly testimonials = [
+  private readonly fallbackTestimonials = [
     {
       text: "Un séjour à Bali absolument magique. La réservation en ligne était fluide, les notifications de suivi rassurantes, et le voyage a dépassé toutes nos attentes!",
       name: "Sophie M.", trip: "Bali, Indonésie • Nov. 2024", stars: 5,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80'
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', initiale: ''
     },
     {
       text: "Le suivi en temps réel est vraiment rassurant. J'ai reçu chaque notification à temps. Un service professionnel et une agence de confiance, je recommande!",
       name: "Thomas L.", trip: "Safari Kenya • Oct. 2024", stars: 5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', initiale: ''
     },
     {
       text: "Les Maldives avec Voyageur, c'est une expérience hors du commun. Le processus de réservation est simple et le suivi impeccable!",
       name: "Marie D.", trip: "Maldives • Déc. 2024", stars: 5,
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80'
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80', initiale: ''
     }
   ];
+
+  get testimonials() {
+    const reviews = this.reviewService.reviews();
+    if (!reviews.length) return this.fallbackTestimonials;
+    return reviews.slice(0, 3).map(r => ({
+      text: r.commentaire,
+      name: r.nom,
+      trip: [r.voyage, r.date ? new Date(r.date).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }) : ''].filter(Boolean).join(' • '),
+      stars: Math.min(5, Math.max(1, Math.round(r.note / 2))),
+      avatar: '',
+      initiale: r.nom.charAt(0).toUpperCase()
+    }));
+  }
 
   starsArray = (n: number) => Array(n).fill(0);
 

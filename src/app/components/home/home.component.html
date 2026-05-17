@@ -228,7 +228,8 @@
         </div>
         <p class="testimonial-text">{{ t.text }}</p>
         <div class="testimonial-author">
-          <img [src]="t.avatar" [alt]="t.name" class="testimonial-avatar">
+          <img *ngIf="t.avatar" [src]="t.avatar" [alt]="t.name" class="testimonial-avatar">
+          <div *ngIf="!t.avatar" class="testimonial-avatar-initiale">{{ t.initiale }}</div>
           <div>
             <div class="testimonial-name">{{ t.name }}</div>
             <div class="testimonial-trip">{{ t.trip }}</div>
