@@ -1,0 +1,86 @@
+<div class="ia-page">
+
+  <!-- HEADER -->
+  <div class="ia-header">
+    <button class="btn-a btn-a-outline ia-back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+    </button>
+    <div class="ia-header-title">
+      <h1 class="ia-title">Import Excel — Assurés</h1>
+      <p class="ia-subtitle">Importez vos assurés en masse depuis un fichier Excel ou CSV</p>
+    </div>
+  </div>
+
+  <!-- CARD -->
+  <div class="ia-card">
+
+    <!-- Format attendu -->
+    <div class="import-format-info">
+      <div class="ifi-title"><i class="bi bi-info-circle me-1"></i>Format du fichier Excel</div>
+      <div class="ifi-cols">
+        <div class="ifi-col" *ngFor="let c of excelColumns; let i = index">
+          <span class="ifi-idx">{{ i+1 }}</span>
+          <span class="ifi-name">{{ c.name }}</span>
+          <span class="ifi-req" *ngIf="c.required">*</span>
+        </div>
+      </div>
+      <div class="ifi-note">* Champs obligatoires. La 1ère ligne peut être un en-tête (ignoré automatiquement).</div>
+    </div>
+
+    <!-- Zone drop/upload -->
+    <div class="import-drop-zone"
+         [class.has-file]="importFile"
+         [class.drag-over]="isDragOver"
+         (click)="xlsxInput.click()"
+         (dragover)="$event.preventDefault(); isDragOver=true"
+         (dragleave)="isDragOver=false"
+         (drop)="onImportDrop($event)">
+      <input #xlsxInput type="file" accept=".xlsx,.xls" style="display:none" (change)="onImportFile($event)">
+      <div *ngIf="!importFile" class="idz-empty">
+        <div class="idz-icon">📂</div>
+        <div class="idz-text">Glisser le fichier ici ou <strong>cliquer</strong></div>
+        <div class="idz-hint">.xlsx ou .xls — données du fichier SUIVI_ASSURES</div>
+      </div>
+      <div *ngIf="importFile" class="idz-selected">
+        <i class="bi bi-file-earmark-excel-fill text-success" style="font-size:32px"></i>
+        <div class="idz-fname">{{ importFile.name }}</div>
+        <div class="idz-fsize">{{ (importFile.size / 1024).toFixed(1) }} KB</div>
+        <button class="idz-remove" (click)="$event.stopPropagation(); importFile=null; importResult=null">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Résultat import -->
+    <div class="import-result" *ngIf="importResult">
+      <div class="ir-stats">
+        <div class="ir-stat ok"><span>{{ importResult.imported }}</span> importés</div>
+        <div class="ir-stat warn"><span>{{ importResult.skipped }}</span> ignorés</div>
+        <div class="ir-stat err"><span>{{ importResult.errors }}</span> erreurs</div>
+      </div>
+      <div class="ir-messages">
+        <div class="ir-msg" *ngFor="let m of importResult.messages"
+             [class.ir-msg-ok]="m.startsWith('✅')"
+             [class.ir-msg-warn]="m.includes('ignorée')"
+             [class.ir-msg-err]="m.includes('erreur')">
+          {{ m }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="ia-footer">
+      <button class="btn-a btn-a-teal" (click)="doImport()" [disabled]="!importFile || importing">
+        <span *ngIf="!importing"><i class="bi bi-upload me-1"></i>Importer</span>
+        <span *ngIf="importing"><span class="spinner-sm"></span> Import en cours…</span>
+      </button>
+      <button class="btn-a btn-a-outline" (click)="downloadTemplate()">
+        <i class="bi bi-download me-1"></i> Modèle CSV
+      </button>
+      <button class="btn-a btn-a-ghost" (click)="goBack()">
+        <i class="bi bi-x me-1"></i> Annuler
+      </button>
+    </div>
+
+  </div>
+</div>

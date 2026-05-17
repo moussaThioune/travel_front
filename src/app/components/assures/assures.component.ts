@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AssureService } from '../../services/assure.service';
 import { NotificationService } from '../../services/notification.service';
-import { ImportService, ImportResult } from '../../services/import.service';
 import { Assure, AssureRequest, AssureStats, StatutAssure } from '../../models/models';
 
 type AssureTab = 'liste' | 'echeances' | 'expires' | 'stats';
-type FormMode = 'none' | 'create' | 'edit';
+type FormMode = 'none' | 'edit';
 
 @Component({
   selector: 'app-assures',
@@ -45,75 +45,13 @@ export class AssuresComponent implements OnInit {
   readonly statuts: StatutAssure[] = ['ACTIF', 'EXPIRE', 'ANNULE', 'VENDU'];
   readonly carburants = ['ESSENCE', 'GAZOLE', 'HYBRIDE', 'ELECTRIQUE'];
 
-  // Import Excel
-  showImportModal = false;
-  importFile: File | null = null;
-  importing = false;
-  isDragOver = false;
-  importResult: ImportResult | null = null;
-  readonly excelColumns = [
-    { name: 'NOM',        required: true },
-    { name: 'PRENOM',     required: false },
-    { name: 'MARQUE',     required: false },
-    { name: 'IMMAT.',     required: false },
-    { name: 'PÉRIODE',    required: false },
-    { name: 'ÉCHÉANCE',   required: true },
-    { name: 'RAPPEL',     required: false },
-    { name: 'TÉLÉPHONE',  required: true },
-    { name: 'NOTES',      required: false },
-  ];
-
   constructor(
+    private router: Router,
     private assureService: AssureService,
-    private notif: NotificationService,
-    private importService: ImportService
+    private notif: NotificationService
   ) {}
 
   ngOnInit(): void { this.loadAll(); }
-
-  // ===== IMPORT EXCEL =====
-  onImportFile(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) { this.importFile = file; this.importResult = null; }
-  }
-
-  onImportDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver = false;
-    const file = event.dataTransfer?.files?.[0];
-    if (file) { this.importFile = file; this.importResult = null; }
-  }
-
-  doImport(): void {
-    if (!this.importFile) return;
-    this.importing = true;
-    this.importResult = null;
-    this.importService.importAssuresExcel(this.importFile).subscribe({
-      next: (r) => {
-        this.importing = false;
-        this.importResult = r;
-        this.loadAll();
-        this.notif.show('📊', 'Import terminé', `${r.imported} assuré(s) importé(s)`, 'success');
-      },
-      error: (err) => {
-        this.importing = false;
-        const msg = err?.error?.error || 'Erreur lors de l\'import.';
-        this.notif.show('❌', 'Erreur import', msg, 'error');
-      }
-    });
-  }
-
-  downloadTemplate(): void {
-    // Génère un CSV modèle téléchargeable
-    const header = 'NOM,PRENOM,MARQUE,IMMATRICULE,PERIODE_GARANTIE,ECHEANCE,DATE_RAPPEL,TELEPHONE,NOTES';
-    const example = 'NDIAYE,MALICK,FORD,AA-858-PC,1,2026-07-08,2026-07-01,77655 62 43,';
-    const blob = new Blob([header + '\n' + example], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'modele_assures.csv';
-    a.click(); URL.revokeObjectURL(url);
-  }
 
   loadAll(): void {
     this.loading = true;
@@ -179,9 +117,7 @@ export class AssuresComponent implements OnInit {
 
   // ===== CRUD =====
   openCreate(): void {
-    this.form = this.emptyForm();
-    this.editingId = null;
-    this.formMode = 'create';
+    this.router.navigate(['/assures/nouveau']);
   }
 
   openEdit(a: Assure): void {
@@ -207,14 +143,12 @@ export class AssuresComponent implements OnInit {
       return;
     }
     this.saving = true;
-    const obs = this.editingId
-      ? this.assureService.update(this.editingId, this.form)
-      : this.assureService.create(this.form);
+    const obs = this.assureService.update(this.editingId!, this.form);
     obs.subscribe({
       next: () => {
         this.saving = false; this.formMode = 'none';
         this.loadAll();
-        this.notif.show('✅', this.editingId ? 'Assuré modifié' : 'Assuré créé', '', 'success');
+        this.notif.show('✅', 'Assuré modifié', '', 'success');
       },
       error: () => { this.saving = false; this.notif.show('❌', 'Erreur', 'Impossible de sauvegarder.', 'error'); }
     });
@@ -289,9 +223,8 @@ export class AssuresComponent implements OnInit {
     if (!debut || !ans || ans <= 0) return;
     const d = new Date(debut);
     d.setFullYear(d.getFullYear() + ans);
-    d.setDate(d.getDate() - 1); // Dernier jour de la période
+    d.setDate(d.getDate() - 1);
     this.form.echeance = d.toISOString().split('T')[0];
-    // Auto-rappel 7j avant
     const rappel = new Date(d);
     rappel.setDate(rappel.getDate() - 7);
     this.form.dateRappel = rappel.toISOString().split('T')[0];

@@ -9,6 +9,8 @@ import { VerifyEmailComponent } from './components/auth/verify-email/verify-emai
 import { ReservationsComponent } from './components/reservations/reservations.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AssuresComponent } from './components/assures/assures.component';
+import { NouvelAssureComponent } from './components/assures/nouvel-assure/nouvel-assure.component';
+import { ImportAssureComponent } from './components/assures/import-assure/import-assure.component';
 import { AvisComponent } from './components/avis/avis.component';
 import { authGuard, adminGuard, guestGuard } from './guards/auth.guard';
 
@@ -35,7 +37,19 @@ const routes: Routes = [
     path: 'assures',
     component: AssuresComponent,
     canActivate: [authGuard, adminGuard],
-    title: 'Voyageur — Suivi Assurés'
+    title: 'Voyageur — Liste des Assureurs'
+  },
+  {
+    path: 'assures/nouveau',
+    component: NouvelAssureComponent,
+    canActivate: [authGuard, adminGuard],
+    title: 'Voyageur — Nouvel assuré'
+  },
+  {
+    path: 'assures/import',
+    component: ImportAssureComponent,
+    canActivate: [authGuard, adminGuard],
+    title: 'Voyageur — Import Assurés'
   },
   { path: 'avis', component: AvisComponent, title: 'Voyageur — Avis clients' },
   { path: '**', redirectTo: '' }

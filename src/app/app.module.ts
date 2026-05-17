@@ -29,6 +29,8 @@ import { VerifyEmailComponent } from './components/auth/verify-email/verify-emai
 import { ReservationsComponent } from './components/reservations/reservations.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AssuresComponent } from './components/assures/assures.component';
+import { NouvelAssureComponent } from './components/assures/nouvel-assure/nouvel-assure.component';
+import { ImportAssureComponent } from './components/assures/import-assure/import-assure.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { AvisComponent } from './components/avis/avis.component';
@@ -53,6 +55,8 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     ReservationsComponent,
     AdminComponent,
     AssuresComponent,
+    NouvelAssureComponent,
+    ImportAssureComponent,
     AvisComponent,
     FooterComponent,
     ToastComponent,
