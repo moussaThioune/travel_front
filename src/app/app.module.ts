@@ -34,6 +34,7 @@ import { ImportAssureComponent } from './components/assures/import-assure/import
 import { FooterComponent } from './components/footer/footer.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { AvisComponent } from './components/avis/avis.component';
+import { VolsComponent } from './components/vols/vols.component';
 
 // Pipes
 import { FrenchDatePipe, EuroPricePipe, ReservationStatutPipe, VoyageCategoriePipe, TruncatePipe } from './pipes/custom.pipes';
@@ -58,6 +59,7 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     NouvelAssureComponent,
     ImportAssureComponent,
     AvisComponent,
+    VolsComponent,
     FooterComponent,
     ToastComponent,
     FrenchDatePipe,

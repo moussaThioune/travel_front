@@ -12,6 +12,7 @@ import { AssuresComponent } from './components/assures/assures.component';
 import { NouvelAssureComponent } from './components/assures/nouvel-assure/nouvel-assure.component';
 import { ImportAssureComponent } from './components/assures/import-assure/import-assure.component';
 import { AvisComponent } from './components/avis/avis.component';
+import { VolsComponent } from './components/vols/vols.component';
 import { authGuard, adminGuard, guestGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -52,6 +53,7 @@ const routes: Routes = [
     title: 'Voyageur — Import Assurés'
   },
   { path: 'avis', component: AvisComponent, title: 'Voyageur — Avis clients' },
+  { path: 'vols', component: VolsComponent, title: 'Voyageur — Recherche de vols' },
   { path: '**', redirectTo: '' }
 ];
 

@@ -1,0 +1,281 @@
+<app-navbar></app-navbar>
+
+<!-- ====== HERO ====== -->
+<section class="vols-hero">
+  <div class="vh-overlay"></div>
+  <div class="vh-content section-wrapper">
+    <h1>Trouvez les meilleures offres de vols<br><em>vers toutes les destinations</em></h1>
+  </div>
+</section>
+
+<!-- ====== SEARCH BOX ====== -->
+<div class="search-box-wrapper">
+  <div class="search-box">
+
+    <!-- Tabs -->
+    <div class="sb-tabs">
+      <button class="sb-tab" [class.active]="activeTab === 'vols'" (click)="activeTab = 'vols'">
+        <i class="bi bi-airplane-fill"></i> Vols
+      </button>
+      <button class="sb-tab" [class.active]="activeTab === 'hotels'" (click)="activeTab = 'hotels'">
+        <i class="bi bi-building"></i> Hôtels
+      </button>
+      <button class="sb-tab" [class.active]="activeTab === 'voitures'" (click)="activeTab = 'voitures'">
+        <i class="bi bi-car-front-fill"></i> Voitures
+      </button>
+    </div>
+
+    <!-- VOLS FORM -->
+    <div class="sb-form" *ngIf="activeTab === 'vols'">
+
+      <!-- Row 1: Trip type -->
+      <div class="sb-options-row">
+        <div class="trip-type-wrap">
+          <button class="trip-type-btn" (click)="showTripTypeMenu = !showTripTypeMenu; $event.stopPropagation()">
+            {{ tripType === 'aller-retour' ? 'Aller-retour' : 'Aller simple' }}
+            <i class="bi bi-chevron-down ms-1"></i>
+          </button>
+          <div class="trip-type-menu" *ngIf="showTripTypeMenu">
+            <button (click)="setTripType('aller-retour')" [class.selected]="tripType === 'aller-retour'">
+              <i class="bi bi-arrow-left-right me-2"></i>Aller-retour
+            </button>
+            <button (click)="setTripType('aller-simple')" [class.selected]="tripType === 'aller-simple'">
+              <i class="bi bi-arrow-right me-2"></i>Aller simple
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Main search fields -->
+      <div class="sb-fields-row">
+
+        <!-- From -->
+        <div class="sb-field from-field">
+          <label>De</label>
+          <input type="text" [(ngModel)]="from" placeholder="Pays, ville ou aéroport" class="sb-input">
+        </div>
+
+        <!-- Swap -->
+        <button class="swap-btn" (click)="swapAirports()" title="Inverser">
+          <i class="bi bi-arrow-left-right"></i>
+        </button>
+
+        <!-- To -->
+        <div class="sb-field to-field">
+          <label>Vers</label>
+          <input type="text" [(ngModel)]="to" placeholder="Pays, ville ou aéroport" class="sb-input">
+        </div>
+
+        <!-- Depart date -->
+        <div class="sb-field date-field" (click)="openCalendar('depart'); $event.stopPropagation()"
+             [class.focused]="showCalendar && calendarTarget === 'depart'">
+          <label>Départ</label>
+          <div class="sb-date-val" [class.placeholder]="!departDate">
+            {{ departDate ? departLabel : 'Choisir une date' }}
+          </div>
+          <button class="date-clear-btn" *ngIf="departDate" (click)="departDate = null; $event.stopPropagation()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <!-- Return date (aller-retour only) -->
+        <div class="sb-field date-field" *ngIf="tripType === 'aller-retour'"
+             (click)="openCalendar('retour'); $event.stopPropagation()"
+             [class.focused]="showCalendar && calendarTarget === 'retour'">
+          <label>Retour</label>
+          <div class="sb-date-val" [class.placeholder]="!returnDate">
+            {{ returnDate ? returnLabel : 'Ajouter une date' }}
+          </div>
+        </div>
+
+        <!-- Passengers & Class -->
+        <div class="sb-field passenger-wrap" (click)="openPassengers(); $event.stopPropagation()">
+          <label>Voyageurs et classe</label>
+          <div class="sb-date-val">{{ passengerDetailLabel }}</div>
+
+          <!-- Passenger dropdown -->
+          <div class="passenger-dropdown" *ngIf="showPassengerMenu" (click)="$event.stopPropagation()">
+            <div class="pd-row">
+              <div class="pd-label">
+                <strong>Adultes</strong>
+                <span>12 ans et plus</span>
+              </div>
+              <div class="pd-counter">
+                <button (click)="changeCount('adults', -1)" [disabled]="adults <= 1">−</button>
+                <span>{{ adults }}</span>
+                <button (click)="changeCount('adults', 1)" [disabled]="adults >= 9">+</button>
+              </div>
+            </div>
+            <div class="pd-row">
+              <div class="pd-label">
+                <strong>Enfants</strong>
+                <span>2 – 11 ans</span>
+              </div>
+              <div class="pd-counter">
+                <button (click)="changeCount('children', -1)" [disabled]="children <= 0">−</button>
+                <span>{{ children }}</span>
+                <button (click)="changeCount('children', 1)" [disabled]="children >= 8">+</button>
+              </div>
+            </div>
+            <div class="pd-row">
+              <div class="pd-label">
+                <strong>Bébés</strong>
+                <span>Moins de 2 ans</span>
+              </div>
+              <div class="pd-counter">
+                <button (click)="changeCount('infants', -1)" [disabled]="infants <= 0">−</button>
+                <span>{{ infants }}</span>
+                <button (click)="changeCount('infants', 1)" [disabled]="infants >= adults">+</button>
+              </div>
+            </div>
+            <div class="pd-divider"></div>
+            <div class="pd-class-label">Classe</div>
+            <div class="pd-classes">
+              <button *ngFor="let c of cabinClasses" class="pd-class-btn"
+                      [class.active]="cabinClass === c"
+                      (click)="selectClass(c)">{{ c }}</button>
+            </div>
+            <button class="pd-apply" (click)="showPassengerMenu = false">Appliquer</button>
+          </div>
+        </div>
+
+        <!-- Search button -->
+        <button class="sb-search-btn" (click)="search()">
+          <i class="bi bi-search me-2"></i>Rechercher
+        </button>
+
+      </div>
+
+      <!-- Row 3: Checkboxes -->
+      <div class="sb-check-row">
+        <label class="sb-check">
+          <input type="checkbox" [(ngModel)]="nearbyFrom">
+          <span>Ajouter des aéroports à proximité</span>
+        </label>
+        <label class="sb-check">
+          <input type="checkbox" [(ngModel)]="nearbyTo">
+          <span>Ajouter des aéroports à proximité</span>
+        </label>
+        <label class="sb-check">
+          <input type="checkbox" [(ngModel)]="directOnly">
+          <span>Vols directs</span>
+        </label>
+      </div>
+
+      <!-- Calendar dropdown -->
+      <div class="calendar-dropdown" *ngIf="showCalendar" (click)="$event.stopPropagation()">
+        <div class="cal-header">
+          <div class="cal-mode-tabs">
+            <button class="cal-mode-btn active">Dates spécifiques</button>
+            <button class="cal-mode-btn">Dates flexibles</button>
+          </div>
+        </div>
+
+        <div class="cal-months">
+          <!-- Left month -->
+          <div class="cal-month">
+            <div class="cal-month-nav">
+              <button class="cal-nav-btn" (click)="prevMonth()"><i class="bi bi-chevron-left"></i></button>
+              <span class="cal-month-title">{{ formatMonthYear(calendarLeft) | titlecase }}</span>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-wd" *ngFor="let d of weekDays">{{ d }}</div>
+              <ng-container *ngFor="let week of leftWeeks">
+                <div *ngFor="let day of week"
+                     class="cal-day"
+                     [class.other-month]="!day.isCurrentMonth"
+                     [class.today]="day.isToday"
+                     [class.past]="day.isPast || !day.isCurrentMonth"
+                     [class.selected]="day.isSelected"
+                     [class.in-range]="day.isInRange"
+                     [class.range-start]="day.isRangeStart"
+                     [class.range-end]="day.isRangeEnd"
+                     (click)="selectDay(day)">
+                  {{ day.isCurrentMonth ? day.day : '' }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Right month -->
+          <div class="cal-month">
+            <div class="cal-month-nav right-nav">
+              <span class="cal-month-title">{{ formatMonthYear(calendarRight) | titlecase }}</span>
+              <button class="cal-nav-btn" (click)="nextMonth()"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-wd" *ngFor="let d of weekDays">{{ d }}</div>
+              <ng-container *ngFor="let week of rightWeeks">
+                <div *ngFor="let day of week"
+                     class="cal-day"
+                     [class.other-month]="!day.isCurrentMonth"
+                     [class.today]="day.isToday"
+                     [class.past]="day.isPast || !day.isCurrentMonth"
+                     [class.selected]="day.isSelected"
+                     [class.in-range]="day.isInRange"
+                     [class.range-start]="day.isRangeStart"
+                     [class.range-end]="day.isRangeEnd"
+                     (click)="selectDay(day)">
+                  {{ day.isCurrentMonth ? day.day : '' }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="cal-footer">
+          <span class="cal-hint">
+            <ng-container *ngIf="calendarTarget === 'depart'">Sélectionnez une date de départ</ng-container>
+            <ng-container *ngIf="calendarTarget === 'retour' && !returnDate">Ajoutez une date de retour</ng-container>
+            <ng-container *ngIf="calendarTarget === 'retour' && returnDate && departDate">
+              {{ departLabel }} → {{ returnLabel }}
+            </ng-container>
+          </span>
+          <button class="cal-apply-btn" (click)="applyDates()">Appliquer</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HOTELS / VOITURES placeholders -->
+    <div class="sb-coming-soon" *ngIf="activeTab !== 'vols'">
+      <i class="bi bi-tools"></i>
+      <p>La recherche {{ activeTab === 'hotels' ? 'd\'hôtels' : 'de voitures' }} arrive bientôt.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====== BREADCRUMB ====== -->
+<div class="vols-breadcrumb section-wrapper">
+  <a routerLink="/">Accueil</a>
+  <i class="bi bi-chevron-right"></i>
+  <span>Vols</span>
+</div>
+
+<!-- ====== INFO SECTION ====== -->
+<section class="vols-info section-wrapper">
+  <div class="vi-card">
+    <i class="bi bi-airplane"></i>
+    <div>
+      <h4>Explorez les meilleures offres</h4>
+      <p>Trouvez et comparez les vols sur tous les itinéraires — choisissez le jour le moins cher pour voler puis sélectionnez les vols les plus intéressants.</p>
+    </div>
+  </div>
+  <div class="vi-card">
+    <i class="bi bi-shield-check"></i>
+    <div>
+      <h4>Réservation sécurisée</h4>
+      <p>Toutes vos réservations sont protégées. Annulation sans frais selon les conditions tarifaires choisies.</p>
+    </div>
+  </div>
+  <div class="vi-card">
+    <i class="bi bi-headset"></i>
+    <div>
+      <h4>Assistance 7j/7</h4>
+      <p>Notre équipe est disponible pour vous accompagner avant, pendant et après votre voyage.</p>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

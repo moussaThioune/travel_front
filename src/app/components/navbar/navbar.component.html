@@ -12,6 +12,9 @@
     <div class="nav-links" [class.open]="isMenuOpen">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">{{ 'nav.home' | translate }}</a>
       <a routerLink="/voyages" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.voyages' | translate }}</a>
+      <a routerLink="/vols" routerLinkActive="active" (click)="closeMenu()">
+        <i class="bi bi-airplane-fill me-1"></i>Vols
+      </a>
       <a routerLink="/destinations" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.destinations' | translate }}</a>
       <a *ngIf="authService.isLoggedIn()" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.myBookings' | translate }}</a>
       <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">
