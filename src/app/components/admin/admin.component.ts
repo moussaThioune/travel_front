@@ -245,8 +245,23 @@ export class AdminComponent implements OnInit {
     this.imageFile = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.imagePreview = e.target?.result as string;
-      this.form.imageUrl = this.imagePreview;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1024;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        this.imagePreview = compressed;
+        this.form.imageUrl = compressed;
+      };
+      img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
