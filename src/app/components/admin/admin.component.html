@@ -417,7 +417,7 @@
       </div>
 
       <!-- Formulaire voyage -->
-      <div class="admin-form-panel" [hidden]="showVoyageForm">
+      <div class="admin-form-panel" [hidden]="!showVoyageForm">
         <div class="afp-header">
           <h3>{{ editingVoyage ? 'Modifier' : 'Créer' }} un voyage</h3>
           <button (click)="cancelForm()"><i class="bi bi-x-lg"></i></button>
