@@ -254,12 +254,39 @@
   <span>Vols</span>
 </div>
 
-<!-- ====== RÉSULTATS / MES DEMANDES ====== -->
-<section class="vols-results section-wrapper" id="vol-results" *ngIf="authService.isLoggedIn() && mesDemandes.length > 0">
-  <div class="vr-header">
-    <h2><i class="bi bi-list-check me-2"></i>Mes demandes de vols</h2>
-    <a routerLink="/mes-demandes-vols" class="vr-see-all">Voir tout →</a>
+<!-- ====== RÉSULTATS ====== -->
+<section class="vols-results section-wrapper" id="vol-results" *ngIf="showResults">
+
+  <!-- Search summary card -->
+  <div class="vr-search-summary">
+    <div class="vrss-route">
+      <span class="vrss-city">{{ from }}</span>
+      <i class="bi bi-airplane-fill vrss-plane"></i>
+      <span class="vrss-city">{{ to }}</span>
+      <span class="vrss-type">{{ tripType === 'aller-retour' ? 'Aller-retour' : 'Aller simple' }}</span>
+    </div>
+    <div class="vrss-meta">
+      <span><i class="bi bi-calendar3 me-1"></i>{{ departLabel }}<ng-container *ngIf="returnDate"> → {{ returnLabel }}</ng-container></span>
+      <span><i class="bi bi-people-fill me-1"></i>{{ totalPassengers }} passager(s)</span>
+      <span><i class="bi bi-briefcase me-1"></i>{{ cabinClass }}</span>
+    </div>
+    <div class="vrss-action">
+      <p class="vrss-hint">
+        <i class="bi bi-info-circle me-1"></i>
+        Soumettez votre demande — notre équipe vous répond avec les tarifs disponibles sous <strong>24h</strong>.
+      </p>
+      <button class="vrc-btn-submit" (click)="openDemandeModal()">
+        <i class="bi bi-send me-2"></i>Soumettre ma demande
+      </button>
+    </div>
   </div>
+
+  <!-- My previous requests (logged-in only) -->
+  <div *ngIf="authService.isLoggedIn() && mesDemandes.length > 0">
+    <div class="vr-header">
+      <h2><i class="bi bi-list-check me-2"></i>Mes demandes en cours</h2>
+      <a routerLink="/mes-demandes-vols" class="vr-see-all">Voir tout →</a>
+    </div>
 
   <div class="vr-list">
     <div class="vr-card" *ngFor="let d of mesDemandes">
@@ -373,6 +400,8 @@
 
     </div>
   </div>
+  </div><!-- end logged-in demandes -->
+
 </section>
 
 <!-- ====== INFO SECTION ====== -->
@@ -429,27 +458,10 @@
         Vous recevrez une réponse par email sous <strong>24h</strong> avec les disponibilités et tarifs.
       </p>
 
-      <!-- Logged in: submit directly -->
-      <button *ngIf="authService.isLoggedIn()"
-              class="btn-voyageur btn-voyageur-teal btn-voyageur-md"
+      <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md"
               (click)="submitDemande()" [disabled]="submitting">
         <i class="bi bi-send me-2"></i>Envoyer ma demande
       </button>
-
-      <!-- Not logged in: invite to connect -->
-      <div *ngIf="!authService.isLoggedIn()" class="nm-login-prompt">
-        <p><i class="bi bi-lock me-1"></i>Connectez-vous pour envoyer votre demande</p>
-        <div class="nm-login-btns">
-          <a routerLink="/connexion" [queryParams]="{redirect:'/vols'}"
-             class="btn-voyageur btn-voyageur-teal btn-voyageur-sm" (click)="showNotesModal=false">
-            Se connecter
-          </a>
-          <a routerLink="/inscription"
-             class="btn-voyageur btn-voyageur-outline btn-voyageur-sm" (click)="showNotesModal=false">
-            Créer un compte
-          </a>
-        </div>
-      </div>
     </div>
   </div>
 </div>

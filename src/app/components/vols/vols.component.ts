@@ -295,6 +295,13 @@ export class VolsComponent implements OnInit {
       this.notifService.show('⚠️', 'Date manquante', 'Veuillez choisir une date de départ.', 'error');
       return;
     }
+    this.showResults = true;
+    setTimeout(() => {
+      document.getElementById('vol-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  openDemandeModal(): void {
     this.showNotesModal = true;
   }
 
