@@ -65,7 +65,7 @@ export class AdminComponent implements OnInit {
       return;
     }
     this.voyageService.getAll().subscribe({
-      next: v => this.voyages = v,
+      next: v => this.voyages = v.slice().reverse(),
       error: () => {}
     });
     this.reservationService.getAllForAdmin().subscribe({
@@ -284,7 +284,7 @@ export class AdminComponent implements OnInit {
       ? this.voyageService.update(this.editingVoyage.id, this.form as VoyageCreateRequest)
       : this.voyageService.create(this.form as VoyageCreateRequest);
     obs.subscribe(() => {
-      this.voyageService.getAll().subscribe(v => this.voyages = v);
+      this.voyageService.getAll().subscribe(v => this.voyages = v.slice().reverse());
       this.savingVoyage = false; this.cancelForm();
       this.notifService.show('✅', 'Voyage sauvegardé!', '', 'success');
     });
