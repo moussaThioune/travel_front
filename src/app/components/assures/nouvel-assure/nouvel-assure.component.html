@@ -1,0 +1,144 @@
+<div class="na-page">
+
+  <!-- HEADER -->
+  <div class="na-header">
+    <button class="btn-a btn-a-outline na-back-btn" (click)="cancel()">
+      <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+    </button>
+    <div class="na-header-title">
+      <h1 class="na-title">Nouvel assuré</h1>
+      <p class="na-subtitle">Remplissez les informations pour créer un nouveau contrat</p>
+    </div>
+  </div>
+
+  <!-- CARD -->
+  <div class="na-card">
+
+    <div class="fp-section-title">Identité</div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Nom <span class="req">*</span></label>
+        <input type="text" [(ngModel)]="form.nom" placeholder="NOM">
+      </div>
+      <div class="fp-group">
+        <label>Prénom</label>
+        <input type="text" [(ngModel)]="form.prenom" placeholder="Prénom">
+      </div>
+    </div>
+
+    <div class="fp-section-title">Véhicule</div>
+    <div class="fp-grid-3">
+      <div class="fp-group">
+        <label>Marque</label>
+        <input type="text" [(ngModel)]="form.marque" placeholder="PEUGEOT, TOYOTA…">
+      </div>
+      <div class="fp-group">
+        <label>Immatricule</label>
+        <input type="text" [(ngModel)]="form.immatricule" placeholder="AA-123-XX">
+      </div>
+      <div class="fp-group">
+        <label>Puissance</label>
+        <input type="text" [(ngModel)]="form.puissanceFiscale" placeholder="06CV">
+      </div>
+    </div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Carburant</label>
+        <select [(ngModel)]="form.carburant">
+          <option value="">— sélectionner —</option>
+          <option *ngFor="let c of carburants" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+      <div class="fp-group">
+        <label>N° Police</label>
+        <input type="text" [(ngModel)]="form.numeroPolicce" placeholder="5102024000176/001">
+      </div>
+    </div>
+
+    <div class="fp-section-title">Contrat</div>
+
+    <!-- Période de garantie -->
+    <div class="periode-calc-block">
+      <div class="pcb-label">
+        <i class="bi bi-calendar-range me-1"></i>
+        Période de garantie <span class="pcb-hint">(calcul automatique de l'échéance)</span>
+      </div>
+      <div class="fp-grid-2">
+        <div class="fp-group">
+          <label>Date de début</label>
+          <input type="date" [(ngModel)]="form.periodeGarantieDebut"
+                 (change)="calculerEcheanceAuto()">
+        </div>
+        <div class="fp-group">
+          <label>Durée (années)</label>
+          <select [(ngModel)]="form.periodeGarantieAns" (change)="calculerEcheanceAuto()">
+            <option [ngValue]="undefined">— sélectionner —</option>
+            <option [ngValue]="1">1 an</option>
+            <option [ngValue]="2">2 ans</option>
+            <option [ngValue]="3">3 ans</option>
+            <option [ngValue]="5">5 ans</option>
+          </select>
+        </div>
+      </div>
+      <div class="pcb-result" *ngIf="form.echeance">
+        <i class="bi bi-check-circle-fill"></i>
+        Échéance calculée : <strong>{{ formatDate(form.echeance) }}</strong>
+        <span *ngIf="form.dateRappel"> · Rappel : {{ formatDate(form.dateRappel) }}</span>
+      </div>
+    </div>
+
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Date d'échéance <span class="req">*</span></label>
+        <input type="date" [(ngModel)]="form.echeance">
+      </div>
+      <div class="fp-group">
+        <label>Date de rappel</label>
+        <input type="date" [(ngModel)]="form.dateRappel">
+      </div>
+    </div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Prime (FCFA)</label>
+        <input type="number" [(ngModel)]="form.montantPrime" placeholder="0">
+      </div>
+      <div class="fp-group">
+        <label>Statut</label>
+        <select [(ngModel)]="form.statut">
+          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fp-section-title">Contact</div>
+    <div class="fp-grid-2">
+      <div class="fp-group">
+        <label>Téléphone 1 <span class="req">*</span></label>
+        <input type="tel" [(ngModel)]="form.telephone" placeholder="77 XXX XX XX">
+      </div>
+      <div class="fp-group">
+        <label>Téléphone 2</label>
+        <input type="tel" [(ngModel)]="form.telephone2" placeholder="78 XXX XX XX">
+      </div>
+    </div>
+    <div class="fp-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="form.email" placeholder="email@exemple.com">
+    </div>
+
+    <div class="fp-group">
+      <label>Notes</label>
+      <textarea [(ngModel)]="form.notes" rows="3" placeholder="VENDU, PANNE, remarques…"></textarea>
+    </div>
+
+    <!-- FOOTER ACTIONS -->
+    <div class="fp-footer na-footer">
+      <button class="btn-a btn-a-teal" (click)="save()" [disabled]="saving">
+        <span *ngIf="!saving"><i class="bi bi-check-lg me-1"></i>Sauvegarder</span>
+        <span *ngIf="saving"><span class="spinner-sm"></span> Sauvegarde…</span>
+      </button>
+      <button class="btn-a btn-a-outline" (click)="cancel()">Annuler</button>
+    </div>
+
+  </div>
+</div>
