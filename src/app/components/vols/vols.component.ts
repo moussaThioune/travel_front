@@ -98,19 +98,27 @@ export class VolsComponent implements OnInit {
   showNotesModal = false;
   notesClient = '';
 
+  // Results section
+  showResults = false;
+  resultDemandes: import('../../services/demande-vol.service').DemandeVol[] = [];
+  processingId: number | null = null;
+
   constructor(
     private router: Router,
     public authService: AuthService,
-    private demandeVolService: DemandeVolService,
+    public demandeVolService: DemandeVolService,
     private notifService: NotificationService
   ) {}
 
   ngOnInit(): void {
-    // Set default departure date to today + 5 days
     const d = new Date();
     d.setDate(d.getDate() + 5);
     this.departDate = d;
     this.buildCalendars();
+
+    if (this.authService.isLoggedIn()) {
+      this.demandeVolService.loadMesDemandes();
+    }
   }
 
   // =========== Trip type ===========
@@ -313,13 +321,59 @@ export class VolsComponent implements OnInit {
       next: () => {
         this.notifService.show('✈️', 'Demande envoyée !', 'Vous recevrez une réponse par email sous 24h.', 'success');
         this.submitting = false;
-        this.router.navigate(['/mes-demandes-vols']);
+        this.showResults = true;
+        // Scroll to results
+        setTimeout(() => {
+          document.getElementById('vol-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
       },
       error: () => {
         this.notifService.show('❌', 'Erreur', 'Erreur lors de l\'envoi. Veuillez réessayer.', 'error');
         this.submitting = false;
       }
     });
+  }
+
+  get mesDemandes() {
+    return this.demandeVolService.mesDemandes();
+  }
+
+  accepterOffre(id: number): void {
+    if (this.processingId) return;
+    this.processingId = id;
+    this.demandeVolService.accepter(id).subscribe({
+      next: () => {
+        this.notifService.show('✅', 'Tarifs acceptés !', 'Notre équipe va valider votre réservation sous 2h.', 'success');
+        this.processingId = null;
+      },
+      error: () => {
+        this.notifService.show('❌', 'Erreur', 'Une erreur est survenue.', 'error');
+        this.processingId = null;
+      }
+    });
+  }
+
+  rejeterOffre(id: number): void {
+    if (this.processingId) return;
+    this.processingId = id;
+    this.demandeVolService.rejeter(id).subscribe({
+      next: () => {
+        this.notifService.show('ℹ️', 'Offre refusée', 'Vous pouvez soumettre une nouvelle demande.', 'info');
+        this.processingId = null;
+      },
+      error: () => {
+        this.notifService.show('❌', 'Erreur', 'Une erreur est survenue.', 'error');
+        this.processingId = null;
+      }
+    });
+  }
+
+  formatPrice(p: number): string {
+    return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+  }
+
+  formatDateStr(d: string): string {
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   // =========== Helpers ===========

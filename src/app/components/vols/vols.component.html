@@ -254,6 +254,123 @@
   <span>Vols</span>
 </div>
 
+<!-- ====== RÉSULTATS / MES DEMANDES ====== -->
+<section class="vols-results section-wrapper" id="vol-results" *ngIf="authService.isLoggedIn() && mesDemandes.length">
+  <div class="vr-header">
+    <h2><i class="bi bi-list-check me-2"></i>Mes demandes de vols</h2>
+    <a routerLink="/mes-demandes-vols" class="vr-see-all">Voir tout →</a>
+  </div>
+
+  <div class="vr-list">
+    <div class="vr-card" *ngFor="let d of mesDemandes">
+
+      <!-- Card top: route + status -->
+      <div class="vrc-top">
+        <div class="vrc-route">
+          <div class="vrc-airport">
+            <span class="vrc-code">{{ d.origine }}</span>
+          </div>
+          <div class="vrc-arrow">
+            <i class="bi bi-airplane-fill"></i>
+            <span class="vrc-type">{{ d.typeVoyage === 'aller-retour' ? 'A/R' : 'A/S' }}</span>
+          </div>
+          <div class="vrc-airport">
+            <span class="vrc-code">{{ d.destination }}</span>
+          </div>
+        </div>
+        <span class="vrc-badge" [ngClass]="demandeVolService.statutClass(d.statut)">
+          {{ demandeVolService.statutLabel(d.statut) }}
+        </span>
+      </div>
+
+      <!-- Card meta -->
+      <div class="vrc-meta">
+        <span><i class="bi bi-calendar3 me-1"></i>{{ formatDateStr(d.dateDepart) }}</span>
+        <span *ngIf="d.dateRetour"><i class="bi bi-calendar3-range me-1"></i>{{ formatDateStr(d.dateRetour) }}</span>
+        <span><i class="bi bi-people-fill me-1"></i>{{ d.totalPassagers }} pax</span>
+        <span><i class="bi bi-briefcase me-1"></i>{{ d.classeVoyage }}</span>
+        <span class="vrc-ref">#{{ d.numeroDemande }}</span>
+      </div>
+
+      <!-- EN_ATTENTE: waiting state -->
+      <div class="vrc-waiting" *ngIf="d.statut === 'EN_ATTENTE'">
+        <div class="vrc-wait-icon">⏳</div>
+        <div>
+          <strong>Votre demande est en cours de traitement</strong>
+          <p>Notre équipe vérifie les disponibilités et vous répond sous <strong>24 heures</strong> par email.</p>
+        </div>
+      </div>
+
+      <!-- REPONSE_ENVOYEE: offer available → main action! -->
+      <div class="vrc-offer" *ngIf="d.statut === 'REPONSE_ENVOYEE'">
+        <div class="vrc-offer-badge">
+          <i class="bi bi-check-circle-fill me-1"></i> Vol disponible !
+        </div>
+        <div class="vrc-offer-details">
+          <div class="vrc-airline">{{ d.compagnieAerienne }}</div>
+          <div class="vrc-offer-sub">
+            <span *ngIf="d.dureeVol"><i class="bi bi-clock me-1"></i>{{ d.dureeVol }}</span>
+            <span *ngIf="d.escales"><i class="bi bi-arrow-return-right me-1"></i>Via {{ d.escales }}</span>
+            <span *ngIf="!d.escales && d.dureeVol"><i class="bi bi-dot me-1"></i>Vol direct</span>
+          </div>
+          <div class="vrc-offer-price">
+            <div class="vrc-price-total">{{ formatPrice(d.prixTotal!) }}</div>
+            <div class="vrc-price-per">{{ formatPrice(d.prixParPersonne!) }} / personne</div>
+          </div>
+          <div class="vrc-notes" *ngIf="d.notesAdmin">
+            <i class="bi bi-info-circle me-1"></i>{{ d.notesAdmin }}
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="vrc-actions">
+          <button class="vrc-btn-accept" (click)="accepterOffre(d.id); $event.stopPropagation()"
+                  [disabled]="processingId === d.id">
+            <i class="bi bi-check-lg me-2"></i>
+            {{ processingId === d.id ? 'Traitement…' : 'Valider ma réservation' }}
+          </button>
+          <button class="vrc-btn-reject" (click)="rejeterOffre(d.id); $event.stopPropagation()"
+                  [disabled]="processingId === d.id">
+            <i class="bi bi-x-lg me-1"></i>Refuser
+          </button>
+        </div>
+      </div>
+
+      <!-- ACCEPTE: waiting for admin validation -->
+      <div class="vrc-accepted" *ngIf="d.statut === 'ACCEPTE'">
+        <i class="bi bi-hourglass-split me-2"></i>
+        Tarifs acceptés — validation par notre équipe en cours…
+      </div>
+
+      <!-- VALIDEE: proceed to payment -->
+      <div class="vrc-validated" *ngIf="d.statut === 'VALIDEE'">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        Réservation confirmée ! Contactez-nous au <strong>+221 78 143 44 44</strong> pour procéder au paiement.
+      </div>
+
+      <!-- PAYE / BILLET_EMIS -->
+      <div class="vrc-billet" *ngIf="d.statut === 'BILLET_EMIS'">
+        <i class="bi bi-ticket-perforated-fill me-2"></i>
+        Billet : <strong>{{ d.numeroBillet }}</strong>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Login prompt if not logged in and tried to search -->
+<section class="vols-login-prompt section-wrapper" *ngIf="!authService.isLoggedIn()">
+  <i class="bi bi-person-lock"></i>
+  <div>
+    <h3>Connectez-vous pour envoyer une demande de vol</h3>
+    <p>Créez un compte gratuit ou connectez-vous pour soumettre votre demande et recevoir les tarifs par email.</p>
+    <div class="vlp-btns">
+      <a routerLink="/connexion" class="btn-voyageur btn-voyageur-teal btn-voyageur-sm">Se connecter</a>
+      <a routerLink="/inscription" class="btn-voyageur btn-voyageur-outline btn-voyageur-sm">Créer un compte</a>
+    </div>
+  </div>
+</section>
+
 <!-- ====== INFO SECTION ====== -->
 <section class="vols-info section-wrapper">
   <div class="vi-card">
