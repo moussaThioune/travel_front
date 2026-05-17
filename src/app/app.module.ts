@@ -36,6 +36,7 @@ import { ToastComponent } from './components/toast/toast.component';
 import { AvisComponent } from './components/avis/avis.component';
 import { VolsComponent } from './components/vols/vols.component';
 import { MesDemandesVolsComponent } from './components/mes-demandes-vols/mes-demandes-vols.component';
+import { ProfilComponent } from './components/profil/profil.component';
 
 // Pipes
 import { FrenchDatePipe, EuroPricePipe, ReservationStatutPipe, VoyageCategoriePipe, TruncatePipe } from './pipes/custom.pipes';
@@ -62,6 +63,7 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     AvisComponent,
     VolsComponent,
     MesDemandesVolsComponent,
+    ProfilComponent,
     FooterComponent,
     ToastComponent,
     FrenchDatePipe,

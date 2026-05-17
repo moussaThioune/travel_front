@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { DemandeVolService } from '../../services/demande-vol.service';
+import { DemandeVolService, DemandeVol, ModePaiement } from '../../services/demande-vol.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 
@@ -100,8 +100,14 @@ export class VolsComponent implements OnInit {
 
   // Results section
   showResults = false;
-  resultDemandes: import('../../services/demande-vol.service').DemandeVol[] = [];
   processingId: number | null = null;
+
+  // Payment modal
+  showPaymentModal = false;
+  payingDemande: DemandeVol | null = null;
+  selectedPayMethod: ModePaiement = 'ORANGE_MONEY';
+  payPhone = '';
+  paySubmitting = false;
 
   constructor(
     private router: Router,
@@ -281,10 +287,6 @@ export class VolsComponent implements OnInit {
 
   // =========== Submit ===========
   search(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/connexion'], { queryParams: { redirect: '/vols' } });
-      return;
-    }
     if (!this.to.trim()) {
       this.notifService.show('⚠️', 'Destination manquante', 'Veuillez indiquer une destination.', 'error');
       return;
@@ -298,6 +300,12 @@ export class VolsComponent implements OnInit {
 
   submitDemande(): void {
     if (this.submitting) return;
+    // Ask to login only at the moment of actual submission
+    if (!this.authService.isLoggedIn()) {
+      this.showNotesModal = false;
+      this.router.navigate(['/connexion'], { queryParams: { redirect: '/vols' } });
+      return;
+    }
     this.submitting = true;
     this.showNotesModal = false;
 
@@ -366,6 +374,36 @@ export class VolsComponent implements OnInit {
         this.processingId = null;
       }
     });
+  }
+
+  openPayment(d: DemandeVol): void {
+    this.payingDemande = d;
+    this.selectedPayMethod = 'ORANGE_MONEY';
+    this.payPhone = '';
+    this.showPaymentModal = true;
+  }
+
+  submitPayment(): void {
+    if (!this.payingDemande || this.paySubmitting) return;
+    this.paySubmitting = true;
+    this.demandeVolService.payer(this.payingDemande.id, {
+      modePaiement: this.selectedPayMethod,
+      phoneNumber: this.payPhone || undefined
+    }).subscribe({
+      next: () => {
+        this.notifService.show('💳', 'Paiement enregistré !', 'Votre billet sera émis très prochainement.', 'success');
+        this.showPaymentModal = false;
+        this.paySubmitting = false;
+      },
+      error: () => {
+        this.notifService.show('❌', 'Erreur', 'Erreur lors du paiement.', 'error');
+        this.paySubmitting = false;
+      }
+    });
+  }
+
+  get needsPhone(): boolean {
+    return ['ORANGE_MONEY', 'WAVE', 'FREE_MONEY'].includes(this.selectedPayMethod);
   }
 
   formatPrice(p: number): string {

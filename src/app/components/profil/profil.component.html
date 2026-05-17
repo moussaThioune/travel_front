@@ -1,0 +1,141 @@
+<app-navbar></app-navbar>
+
+<div class="profil-page section-wrapper">
+
+  <!-- Loading state -->
+  <div class="profil-loading" *ngIf="loading">
+    <i class="bi bi-hourglass-split"></i>
+    <p>Chargement de votre profil…</p>
+  </div>
+
+  <div class="profil-layout" *ngIf="!loading && profile">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="profil-sidebar">
+      <div class="ps-avatar">{{ initials }}</div>
+      <div class="ps-name">{{ profile.firstName }} {{ profile.lastName }}</div>
+      <div class="ps-email">{{ profile.email }}</div>
+      <div class="ps-role">{{ roleLabel }}</div>
+
+      <nav class="ps-nav">
+        <button class="psn-item" [class.active]="activeSection === 'profile'"
+                (click)="activeSection = 'profile'">
+          <i class="bi bi-person-fill me-2"></i>Mon profil
+        </button>
+        <button class="psn-item" [class.active]="activeSection === 'security'"
+                (click)="activeSection = 'security'">
+          <i class="bi bi-shield-lock-fill me-2"></i>Sécurité
+        </button>
+        <a routerLink="/mes-reservations" class="psn-item">
+          <i class="bi bi-bag-check-fill me-2"></i>Mes réservations
+        </a>
+        <a routerLink="/mes-demandes-vols" class="psn-item">
+          <i class="bi bi-airplane-fill me-2"></i>Mes vols
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="profil-main">
+
+      <!-- Profile section -->
+      <div class="profil-section" *ngIf="activeSection === 'profile'">
+        <div class="ps-section-header">
+          <h2><i class="bi bi-person-fill me-2"></i>Informations personnelles</h2>
+          <p>Mettez à jour votre nom et prénom.</p>
+        </div>
+
+        <div class="ps-form">
+          <div class="pf-group">
+            <label>Prénom</label>
+            <input type="text" [(ngModel)]="editFirstName" placeholder="Votre prénom">
+          </div>
+          <div class="pf-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="editLastName" placeholder="Votre nom">
+          </div>
+          <div class="pf-group">
+            <label>Email</label>
+            <input type="email" [value]="profile.email" disabled class="pf-disabled">
+            <span class="pf-hint">L'adresse email ne peut pas être modifiée.</span>
+          </div>
+          <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md pf-save"
+                  (click)="saveProfile()" [disabled]="savingProfile">
+            <i class="bi bi-check-lg me-2"></i>
+            {{ savingProfile ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Security section -->
+      <div class="profil-section" *ngIf="activeSection === 'security'">
+        <div class="ps-section-header">
+          <h2><i class="bi bi-shield-lock-fill me-2"></i>Changer le mot de passe</h2>
+          <p>Choisissez un mot de passe fort d'au moins 8 caractères.</p>
+        </div>
+
+        <div class="ps-form">
+          <div class="pf-group">
+            <label>Mot de passe actuel</label>
+            <div class="pf-pwd-wrap">
+              <input [type]="showCurrentPwd ? 'text' : 'password'"
+                     [(ngModel)]="currentPassword" placeholder="••••••••">
+              <button class="pf-eye" (click)="showCurrentPwd = !showCurrentPwd">
+                <i class="bi" [class.bi-eye]="!showCurrentPwd" [class.bi-eye-slash]="showCurrentPwd"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="pf-group">
+            <label>Nouveau mot de passe</label>
+            <div class="pf-pwd-wrap">
+              <input [type]="showNewPwd ? 'text' : 'password'"
+                     [(ngModel)]="newPassword" placeholder="••••••••">
+              <button class="pf-eye" (click)="showNewPwd = !showNewPwd">
+                <i class="bi" [class.bi-eye]="!showNewPwd" [class.bi-eye-slash]="showNewPwd"></i>
+              </button>
+            </div>
+            <div class="pf-strength" *ngIf="newPassword">
+              <div class="pfs-bar">
+                <div class="pfs-fill"
+                     [style.width.%]="newPassword.length >= 12 ? 100 : newPassword.length >= 8 ? 66 : 33"
+                     [class.weak]="newPassword.length < 8"
+                     [class.medium]="newPassword.length >= 8 && newPassword.length < 12"
+                     [class.strong]="newPassword.length >= 12"></div>
+              </div>
+              <span class="pfs-label"
+                    [class.weak]="newPassword.length < 8"
+                    [class.medium]="newPassword.length >= 8 && newPassword.length < 12"
+                    [class.strong]="newPassword.length >= 12">
+                {{ newPassword.length < 8 ? 'Faible' : newPassword.length < 12 ? 'Moyen' : 'Fort' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="pf-group">
+            <label>Confirmer le nouveau mot de passe</label>
+            <div class="pf-pwd-wrap">
+              <input [type]="showConfirmPwd ? 'text' : 'password'"
+                     [(ngModel)]="confirmPassword" placeholder="••••••••">
+              <button class="pf-eye" (click)="showConfirmPwd = !showConfirmPwd">
+                <i class="bi" [class.bi-eye]="!showConfirmPwd" [class.bi-eye-slash]="showConfirmPwd"></i>
+              </button>
+            </div>
+            <span class="pf-match-error" *ngIf="confirmPassword && confirmPassword !== newPassword">
+              <i class="bi bi-x-circle me-1"></i>Les mots de passe ne correspondent pas
+            </span>
+          </div>
+
+          <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md pf-save"
+                  (click)="changePassword()" [disabled]="savingPassword">
+            <i class="bi bi-lock-fill me-2"></i>
+            {{ savingPassword ? 'Modification…' : 'Changer le mot de passe' }}
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<app-footer></app-footer>

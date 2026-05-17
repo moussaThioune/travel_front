@@ -139,9 +139,9 @@
           </div>
         </div>
 
-        <!-- Search / Submit button -->
+        <!-- Search button — open to everyone -->
         <button class="sb-search-btn" (click)="search()" [disabled]="submitting">
-          <span *ngIf="!submitting"><i class="bi bi-send me-2"></i>{{ authService.isLoggedIn() ? 'Envoyer ma demande' : 'Rechercher' }}</span>
+          <span *ngIf="!submitting"><i class="bi bi-search me-2"></i>Rechercher</span>
           <span *ngIf="submitting"><i class="bi bi-hourglass-split me-2"></i>Envoi…</span>
         </button>
 
@@ -255,7 +255,7 @@
 </div>
 
 <!-- ====== RÉSULTATS / MES DEMANDES ====== -->
-<section class="vols-results section-wrapper" id="vol-results" *ngIf="authService.isLoggedIn() && mesDemandes.length">
+<section class="vols-results section-wrapper" id="vol-results" *ngIf="authService.isLoggedIn() && mesDemandes.length > 0">
   <div class="vr-header">
     <h2><i class="bi bi-list-check me-2"></i>Mes demandes de vols</h2>
     <a routerLink="/mes-demandes-vols" class="vr-see-all">Voir tout →</a>
@@ -344,29 +344,33 @@
 
       <!-- VALIDEE: proceed to payment -->
       <div class="vrc-validated" *ngIf="d.statut === 'VALIDEE'">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        Réservation confirmée ! Contactez-nous au <strong>+221 78 143 44 44</strong> pour procéder au paiement.
+        <div class="vrc-validated-info">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <div>
+            <strong>Réservation confirmée !</strong>
+            <p>Procédez au paiement pour recevoir votre billet.</p>
+          </div>
+        </div>
+        <div class="vrc-validated-price" *ngIf="d.prixTotal">
+          <span class="vrc-price-total">{{ formatPrice(d.prixTotal) }}</span>
+        </div>
+        <button class="vrc-btn-pay" (click)="openPayment(d); $event.stopPropagation()">
+          <i class="bi bi-credit-card-fill me-2"></i>Payer maintenant
+        </button>
       </div>
 
-      <!-- PAYE / BILLET_EMIS -->
+      <!-- PAYE: waiting for ticket -->
+      <div class="vrc-paid" *ngIf="d.statut === 'PAYE'">
+        <i class="bi bi-hourglass-split me-2"></i>
+        Paiement reçu — votre billet est en cours d'émission.
+      </div>
+
+      <!-- BILLET_EMIS -->
       <div class="vrc-billet" *ngIf="d.statut === 'BILLET_EMIS'">
         <i class="bi bi-ticket-perforated-fill me-2"></i>
         Billet : <strong>{{ d.numeroBillet }}</strong>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- Login prompt if not logged in and tried to search -->
-<section class="vols-login-prompt section-wrapper" *ngIf="!authService.isLoggedIn()">
-  <i class="bi bi-person-lock"></i>
-  <div>
-    <h3>Connectez-vous pour envoyer une demande de vol</h3>
-    <p>Créez un compte gratuit ou connectez-vous pour soumettre votre demande et recevoir les tarifs par email.</p>
-    <div class="vlp-btns">
-      <a routerLink="/connexion" class="btn-voyageur btn-voyageur-teal btn-voyageur-sm">Se connecter</a>
-      <a routerLink="/inscription" class="btn-voyageur btn-voyageur-outline btn-voyageur-sm">Créer un compte</a>
     </div>
   </div>
 </section>
@@ -424,8 +428,100 @@
         <i class="bi bi-info-circle me-1"></i>
         Vous recevrez une réponse par email sous <strong>24h</strong> avec les disponibilités et tarifs.
       </p>
-      <button class="btn-voyageur btn-voyageur-teal btn-voyageur-md" (click)="submitDemande()" [disabled]="submitting">
+
+      <!-- Logged in: submit directly -->
+      <button *ngIf="authService.isLoggedIn()"
+              class="btn-voyageur btn-voyageur-teal btn-voyageur-md"
+              (click)="submitDemande()" [disabled]="submitting">
         <i class="bi bi-send me-2"></i>Envoyer ma demande
+      </button>
+
+      <!-- Not logged in: invite to connect -->
+      <div *ngIf="!authService.isLoggedIn()" class="nm-login-prompt">
+        <p><i class="bi bi-lock me-1"></i>Connectez-vous pour envoyer votre demande</p>
+        <div class="nm-login-btns">
+          <a routerLink="/connexion" [queryParams]="{redirect:'/vols'}"
+             class="btn-voyageur btn-voyageur-teal btn-voyageur-sm" (click)="showNotesModal=false">
+            Se connecter
+          </a>
+          <a routerLink="/inscription"
+             class="btn-voyageur btn-voyageur-outline btn-voyageur-sm" (click)="showNotesModal=false">
+            Créer un compte
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PAYMENT MODAL ====== -->
+<div class="pay-modal-backdrop" *ngIf="showPaymentModal" (click)="showPaymentModal = false">
+  <div class="pay-modal" (click)="$event.stopPropagation()">
+    <div class="pm-header">
+      <div class="pm-title">
+        <i class="bi bi-credit-card-fill me-2"></i>
+        <h3>Paiement de votre vol</h3>
+      </div>
+      <button class="pm-close" (click)="showPaymentModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="pm-summary" *ngIf="payingDemande">
+      <div class="pm-route">
+        <strong>{{ payingDemande.origine }}</strong>
+        <i class="bi bi-arrow-right mx-2"></i>
+        <strong>{{ payingDemande.destination }}</strong>
+      </div>
+      <div class="pm-price">{{ formatPrice(payingDemande.prixTotal!) }}</div>
+    </div>
+
+    <div class="pm-body">
+      <p class="pm-label">Choisissez votre mode de paiement</p>
+
+      <div class="pm-methods">
+        <button class="pm-method" [class.active]="selectedPayMethod === 'ORANGE_MONEY'"
+                (click)="selectedPayMethod = 'ORANGE_MONEY'">
+          <span class="pm-method-icon pm-orange">OM</span>
+          <span>Orange Money</span>
+        </button>
+        <button class="pm-method" [class.active]="selectedPayMethod === 'WAVE'"
+                (click)="selectedPayMethod = 'WAVE'">
+          <span class="pm-method-icon pm-wave">W</span>
+          <span>Wave</span>
+        </button>
+        <button class="pm-method" [class.active]="selectedPayMethod === 'FREE_MONEY'"
+                (click)="selectedPayMethod = 'FREE_MONEY'">
+          <span class="pm-method-icon pm-free">FM</span>
+          <span>Free Money</span>
+        </button>
+        <button class="pm-method" [class.active]="selectedPayMethod === 'CARTE_BANCAIRE'"
+                (click)="selectedPayMethod = 'CARTE_BANCAIRE'">
+          <span class="pm-method-icon pm-card"><i class="bi bi-credit-card"></i></span>
+          <span>Carte bancaire</span>
+        </button>
+      </div>
+
+      <div class="pm-phone-wrap" *ngIf="needsPhone">
+        <label class="pm-phone-label">
+          Numéro de téléphone
+          <span class="pm-phone-hint">(pour recevoir la demande de paiement)</span>
+        </label>
+        <div class="pm-phone-input">
+          <span class="pm-prefix">+221</span>
+          <input type="tel" [(ngModel)]="payPhone" placeholder="7X XXX XX XX" maxlength="10">
+        </div>
+      </div>
+
+      <div class="pm-card-note" *ngIf="selectedPayMethod === 'CARTE_BANCAIRE'">
+        <i class="bi bi-info-circle me-2"></i>
+        Notre équipe vous contactera pour finaliser le paiement par carte de façon sécurisée.
+      </div>
+    </div>
+
+    <div class="pm-footer">
+      <button class="pm-cancel" (click)="showPaymentModal = false">Annuler</button>
+      <button class="pm-submit" (click)="submitPayment()" [disabled]="paySubmitting">
+        <i class="bi bi-lock-fill me-2"></i>
+        {{ paySubmitting ? 'Traitement…' : 'Confirmer le paiement' }}
       </button>
     </div>
   </div>

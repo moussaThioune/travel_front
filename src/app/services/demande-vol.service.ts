@@ -71,6 +71,15 @@ export interface BilletRequest {
   notesAdmin?: string;
 }
 
+export type ModePaiement = 'ORANGE_MONEY' | 'WAVE' | 'FREE_MONEY' | 'CARTE_BANCAIRE';
+
+export interface PaiementVolRequest {
+  modePaiement: ModePaiement;
+  phoneNumber?: string;
+  referenceTransaction?: string;
+  notes?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DemandeVolService {
   private readonly API = `${environment.apiUrl}/demandes-vol`;
@@ -106,6 +115,12 @@ export class DemandeVolService {
 
   rejeter(id: number): Observable<DemandeVol> {
     return this.http.put<DemandeVol>(`${this.API}/${id}/rejeter`, {}).pipe(
+      tap(updated => this._updateInList(updated))
+    );
+  }
+
+  payer(id: number, req: PaiementVolRequest): Observable<DemandeVol> {
+    return this.http.post<DemandeVol>(`${this.API}/${id}/paiement`, req).pipe(
       tap(updated => this._updateInList(updated))
     );
   }
