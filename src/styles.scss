@@ -580,6 +580,17 @@ body.rtl {
   .av-perks li { flex-direction: row-reverse; }
 }
 
+// ===== TESTIMONIALS — tailles inversées =====
+.testimonials-section .section-header .section-eyebrow {
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+.testimonials-section .section-header .section-title {
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
 // ===== MEDIA QUERIES =====
 @media (max-width: 768px) {
   .section-wrapper { padding: 0 20px; }

@@ -72,6 +72,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.reviewService.loadStats();
+    this.reviewService.loadReviewsPublic();
     this.featuredVoyages = this.voyageService.activeVoyages().slice(0, 3);
     this.destinations = this.mockData.DESTINATIONS;
     this.heroInterval = setInterval(() => {

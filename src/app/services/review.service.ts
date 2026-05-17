@@ -24,7 +24,7 @@ export class ReviewService {
   private readonly API = `${environment.apiUrl}/avis`;
 
   private _reviews = signal<Review[]>([]);
-  private _stats = signal<AvisStats>({ totalTravelers: 12000, averageRating: 4.9, totalAvis: 0 });
+  private _stats = signal<AvisStats>({ totalTravelers: 12000, averageRating: 0, totalAvis: 0 });
 
   readonly reviews = this._reviews.asReadonly();
   readonly totalTravelers = () => this._stats().totalTravelers;
@@ -42,24 +42,24 @@ export class ReviewService {
     });
   }
 
-  private loadStats(): void {
+  loadStats(): void {
     this.http.get<AvisStats>(`${this.API}/stats`).subscribe({
       next: stats => this._stats.set(stats),
       error: () => {}
     });
   }
 
+  loadReviewsPublic(): void {
+    this.loadReviews();
+  }
+
   submit(data: Omit<Review, 'id' | 'date'>): Observable<Review> {
     return this.http.post<Review>(this.API, data).pipe(
       tap(created => {
+        // Ajoute l'avis immédiatement dans la liste locale
         this._reviews.update(list => [created, ...list]);
-        this._stats.update(s => ({
-          totalTravelers: s.totalTravelers + 1,
-          totalAvis: s.totalAvis + 1,
-          averageRating: Math.round(
-            ((s.averageRating * (s.totalAvis + 9800) + created.note) / (s.totalAvis + 9801)) * 10
-          ) / 10
-        }));
+        // Recharge les stats depuis l'API pour avoir la vraie moyenne calculée côté serveur
+        this.loadStats();
       })
     );
   }
